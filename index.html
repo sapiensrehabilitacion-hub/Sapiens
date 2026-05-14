@@ -591,7 +591,10 @@ async function doLogin() {
   document.getElementById('app').style.display='flex';
   document.getElementById('sb-username').textContent = found.nombre;
   document.getElementById('sb-userrole').textContent = found.rol==='admin'?'Administrador':found.especialidad||'';
-  if (found.rol==='admin') document.getElementById('nav-admin').style.display='flex';
+  if (found.rol==='admin') {
+    document.getElementById('nav-admin').style.display='flex';
+    document.getElementById('nav-contable').style.display='flex';
+  }
   const now = new Date(); calYear=now.getFullYear(); calMonth=now.getMonth();
   const d = now.toLocaleDateString('es-AR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
   document.getElementById('topbar-date').textContent = d.charAt(0).toUpperCase()+d.slice(1);
@@ -608,6 +611,7 @@ function doLogout() {
   document.getElementById('login-pass').value='';
   document.getElementById('login-error').style.display='none';
   document.getElementById('nav-admin').style.display='none';
+  if(document.getElementById('nav-contable')) document.getElementById('nav-contable').style.display='none';
   document.getElementById('nav-contable').style.display='none';
 }
 

@@ -292,6 +292,102 @@ tbody td{padding:12px 14px}
         </div>
       </div>
 
+      <!-- MI DIA -->
+      <div id="panel-midia" class="panel">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+            <div class="card-title" style="margin:0">📅 Mis pacientes de hoy</div>
+            <div id="midia-fecha" style="font-size:13px;color:var(--text-soft)"></div>
+          </div>
+          <div id="midia-stats" style="display:flex;gap:16px;margin-bottom:20px"></div>
+          <div id="midia-list"></div>
+        </div>
+      </div>
+
+      <!-- CONTABLE -->
+      <div id="panel-contable" class="panel">
+        <div class="grid-4" style="margin-bottom:20px">
+          <div class="contable-card"><div class="monto-grande" id="cont-total">$0</div><div class="monto-label">Total facturado</div></div>
+          <div class="contable-card" style="border-left-color:var(--sage)"><div class="monto-grande" style="color:var(--sage)" id="cont-centro">$0</div><div class="monto-label">Para el centro (20%)</div></div>
+          <div class="contable-card" style="border-left-color:var(--sage-light)"><div class="monto-grande" style="color:var(--sage-light)" id="cont-profs">$0</div><div class="monto-label">Para profesionales</div></div>
+          <div class="contable-card" style="border-left-color:#3498db"><div class="monto-grande" style="color:#3498db" id="cont-consultas">0</div><div class="monto-label">Consultas del mes</div></div>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title" style="margin-bottom:16px">Registrar pago</div>
+            <div class="form-row cols-2">
+              <div class="form-field"><label>Paciente</label><select id="pago-paciente"></select></div>
+              <div class="form-field"><label>Profesional</label><select id="pago-prof"></select></div>
+            </div>
+            <div class="form-row cols-2">
+              <div class="form-field"><label>Tipo de consulta</label><select id="pago-tipo" onchange="calcPago()"></select></div>
+              <div class="form-field"><label>Fecha</label><input type="date" id="pago-fecha"></div>
+            </div>
+            <div class="form-row cols-2">
+              <div class="form-field"><label>Valor ($)</label><input type="number" id="pago-valor" oninput="calcPago()" placeholder="0"></div>
+              <div class="form-field"><label>% Centro</label><input type="number" id="pago-pct" value="20" oninput="calcPago()"></div>
+            </div>
+            <div id="pago-preview" style="display:none;background:var(--sage-mist);border-radius:var(--radius-sm);padding:14px;margin-bottom:14px">
+              <div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:6px"><span>Centro:</span><strong id="prev-centro">$0</strong></div>
+              <div style="display:flex;justify-content:space-between;font-size:14px"><span>Profesional:</span><strong id="prev-prof">$0</strong></div>
+            </div>
+            <div class="form-row"><div class="form-field"><label>Observaciones</label><input type="text" id="pago-obs"></div></div>
+            <button class="btn btn-bark" onclick="savePago()">Registrar pago</button>
+          </div>
+          <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+              <div class="card-title" style="margin:0">Tipos de consulta</div>
+              <button class="btn btn-sage btn-sm" onclick="openTipoModal()">+ Nuevo tipo</button>
+            </div>
+            <div id="tipos-list"></div>
+          </div>
+        </div>
+        <div class="card" style="margin-top:20px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+            <div class="card-title" style="margin:0">Historial de pagos</div>
+            <div style="display:flex;gap:8px">
+              <select id="filtro-mes" onchange="renderPagos()" style="padding:6px 10px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-family:'DM Sans',sans-serif"><option value="">Todos los meses</option></select>
+              <select id="filtro-prof-cont" onchange="renderPagos()" style="padding:6px 10px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-family:'DM Sans',sans-serif"><option value="">Todos los profesionales</option></select>
+            </div>
+          </div>
+          <table><thead><tr><th>Fecha</th><th>Paciente</th><th>Profesional</th><th>Tipo</th><th>Total</th><th>Centro</th><th>Prof.</th><th>Estado</th><th></th></tr></thead><tbody id="pagos-table"></tbody></table>
+        </div>
+        <div class="card" style="margin-top:20px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+            <div class="card-title" style="margin:0">💰 Ganancia por profesional</div>
+            <input type="date" id="balance-fecha" onchange="renderGananciaDiaria()" style="padding:6px 10px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-family:'DM Sans',sans-serif">
+          </div>
+          <div id="ganancia-prof-list"></div>
+        </div>
+        <div class="grid-2" style="margin-top:20px">
+          <div class="card">
+            <div class="card-title" style="margin-bottom:16px">+ Registrar ingreso / gasto</div>
+            <div class="form-row cols-2">
+              <div class="form-field"><label>Tipo</label><select id="mov-tipo" onchange="updateCategorias()"><option value="ingreso">Ingreso</option><option value="gasto">Gasto</option></select></div>
+              <div class="form-field"><label>Categoría</label><select id="mov-categoria"><option>Otros ingresos</option><option>Alquiler cobrado</option><option>Subsidio</option></select></div>
+            </div>
+            <div class="form-row cols-2">
+              <div class="form-field"><label>Monto ($)</label><input type="number" id="mov-monto" placeholder="0"></div>
+              <div class="form-field"><label>Fecha</label><input type="date" id="mov-fecha"></div>
+            </div>
+            <div class="form-row"><div class="form-field"><label>Descripción</label><input type="text" id="mov-desc" placeholder="Detalle..."></div></div>
+            <button class="btn btn-sage" onclick="saveMov()">Registrar</button>
+          </div>
+          <div class="card">
+            <div class="card-title">📊 Balance del mes</div>
+            <div id="balance-mes-stats" style="margin-bottom:16px"></div>
+            <div id="balance-mes-list" style="max-height:280px;overflow-y:auto"></div>
+          </div>
+        </div>
+        <div class="card" style="margin-top:20px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+            <div class="card-title" style="margin:0">📈 Resumen mensual</div>
+            <select id="balance-anio" onchange="renderResumenAnual()" style="padding:6px 10px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-family:'DM Sans',sans-serif"></select>
+          </div>
+          <table><thead><tr><th>Mes</th><th>Ingresos consultas</th><th>Otros ingresos</th><th>Gastos</th><th>Balance</th></tr></thead><tbody id="resumen-anual-table"></tbody></table>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -917,11 +1013,20 @@ let tiposConsulta = [];
 async function loadContable(){
   tiposConsulta = await dbGet('tipos_consulta');
   pagos_data = await dbGet('pagos');
+  movimientos_data = await dbGet('movimientos');
   renderContable();
   renderTipos();
   renderPagos();
+  renderBalanceMes();
+  renderResumenAnual();
   populateContableSelects();
   populateFiltros();
+  initAnioSelect();
+  const hoy = new Date().toISOString().slice(0,10);
+  document.getElementById('balance-fecha').value = hoy;
+  document.getElementById('mov-fecha').value = hoy;
+  renderGananciaDiaria();
+  updateCategorias();
 }
 
 let pagos_data = [];
@@ -1047,6 +1152,165 @@ async function saveTipo(){
   hideLoading(); closeModal('modal-tipo'); renderTipos(); populateContableSelects(); notify('Tipo guardado ✓');
 }
 async function deleteTipo(id){ if(!confirm('¿Eliminar tipo?')) return; await dbUpdate('tipos_consulta',id,{activo:false}); tiposConsulta=await dbGet('tipos_consulta'); renderTipos(); populateContableSelects(); }
+
+
+// ── MOVIMIENTOS (INGRESOS/GASTOS) ──
+let movimientos_data = [];
+
+const CATEGORIAS = {
+  ingreso: ['Otros ingresos','Alquiler cobrado','Subsidio','Donación','Venta de insumos'],
+  gasto: ['Alquiler','Sueldos/Honorarios','Servicios (luz/agua/internet)','Insumos y materiales','Impuestos','Limpieza','Mantenimiento','Otros gastos']
+};
+
+function updateCategorias(){
+  const tipo = document.getElementById('mov-tipo').value;
+  const sel = document.getElementById('mov-categoria');
+  sel.innerHTML = CATEGORIAS[tipo].map(c=>`<option>${c}</option>`).join('');
+}
+
+async function saveMov(){
+  const monto = parseFloat(document.getElementById('mov-monto').value);
+  const fecha = document.getElementById('mov-fecha').value;
+  if(!monto||!fecha){ notify('Completá monto y fecha'); return; }
+  showLoading('Registrando...');
+  await dbInsert('movimientos',{
+    tipo: document.getElementById('mov-tipo').value,
+    categoria: document.getElementById('mov-categoria').value,
+    descripcion: document.getElementById('mov-desc').value,
+    monto, fecha
+  });
+  movimientos_data = await dbGet('movimientos');
+  hideLoading();
+  renderBalanceMes();
+  renderResumenAnual();
+  document.getElementById('mov-monto').value='';
+  document.getElementById('mov-desc').value='';
+  notify('Movimiento registrado ✓');
+}
+
+function renderBalanceMes(){
+  const mes = new Date().toISOString().slice(0,7);
+  const movMes = movimientos_data.filter(m=>m.fecha?.startsWith(mes));
+  const pagosMes = pagos_data.filter(p=>p.fecha?.startsWith(mes));
+  
+  const ingConsultas = pagosMes.reduce((a,b)=>a+(+b.monto_centro||0),0);
+  const ingOtros = movMes.filter(m=>m.tipo==='ingreso').reduce((a,b)=>a+(+b.monto||0),0);
+  const gastos = movMes.filter(m=>m.tipo==='gasto').reduce((a,b)=>a+(+b.monto||0),0);
+  const balance = ingConsultas + ingOtros - gastos;
+  
+  const statsDiv = document.getElementById('balance-mes-stats');
+  statsDiv.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:12px">
+      <div style="background:var(--sage-mist);border-radius:8px;padding:12px;text-align:center">
+        <div style="font-size:18px;font-weight:700;color:var(--sage)">$${ingConsultas.toLocaleString('es-AR')}</div>
+        <div style="font-size:11px;color:var(--text-soft)">Consultas</div>
+      </div>
+      <div style="background:var(--sage-mist);border-radius:8px;padding:12px;text-align:center">
+        <div style="font-size:18px;font-weight:700;color:#2ecc71">$${ingOtros.toLocaleString('es-AR')}</div>
+        <div style="font-size:11px;color:var(--text-soft)">Otros ing.</div>
+      </div>
+      <div style="background:#fff5f5;border-radius:8px;padding:12px;text-align:center">
+        <div style="font-size:18px;font-weight:700;color:#e74c3c">$${gastos.toLocaleString('es-AR')}</div>
+        <div style="font-size:11px;color:var(--text-soft)">Gastos</div>
+      </div>
+      <div style="background:${balance>=0?'#f0fff4':'#fff5f5'};border-radius:8px;padding:12px;text-align:center;border:2px solid ${balance>=0?'#2ecc71':'#e74c3c'}">
+        <div style="font-size:18px;font-weight:700;color:${balance>=0?'#2ecc71':'#e74c3c'}">${balance>=0?'+':''}$${balance.toLocaleString('es-AR')}</div>
+        <div style="font-size:11px;color:var(--text-soft)">Balance</div>
+      </div>
+    </div>`;
+  
+  const listDiv = document.getElementById('balance-mes-list');
+  const todos = [...movMes].sort((a,b)=>b.fecha>a.fecha?1:-1);
+  if(!todos.length){ listDiv.innerHTML='<div class="empty-state"><p>Sin movimientos este mes</p></div>'; return; }
+  listDiv.innerHTML = todos.map(m=>`
+    <div class="mov-row ${m.tipo==='ingreso'?'mov-ingreso':'mov-gasto'}">
+      <div style="font-size:20px">${m.tipo==='ingreso'?'↑':'↓'}</div>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:600">${m.categoria}</div>
+        <div style="font-size:11px;color:var(--text-soft)">${m.descripcion||''} · ${formatDate(m.fecha)}</div>
+      </div>
+      <div style="font-weight:700;color:${m.tipo==='ingreso'?'#2ecc71':'#e74c3c'}">${m.tipo==='ingreso'?'+':'-'}$${(+m.monto).toLocaleString('es-AR')}</div>
+      <button class="btn btn-danger btn-sm" onclick="deleteMov('${m.id}')">×</button>
+    </div>`).join('');
+}
+
+async function deleteMov(id){ 
+  if(!confirm('¿Eliminar movimiento?')) return; 
+  showLoading('Eliminando...');
+  await dbDelete('movimientos',id); 
+  movimientos_data=await dbGet('movimientos'); 
+  hideLoading(); 
+  renderBalanceMes(); 
+  renderResumenAnual(); 
+}
+
+function renderGananciaDiaria(){
+  const fecha = document.getElementById('balance-fecha').value || new Date().toISOString().slice(0,10);
+  const pagosDia = pagos_data.filter(p=>p.fecha===fecha);
+  const div = document.getElementById('ganancia-prof-list');
+  if(!pagosDia.length){ div.innerHTML=`<div class="empty-state"><p>Sin pagos registrados para ${formatDate(fecha)}</p></div>`; return; }
+  
+  const porProf = {};
+  pagosDia.forEach(p=>{
+    const n = p.profesional_nombre||'Sin asignar';
+    if(!porProf[n]) porProf[n]={total:0,centro:0,prof:0,cant:0};
+    porProf[n].total += +p.valor_total||0;
+    porProf[n].centro += +p.monto_centro||0;
+    porProf[n].prof += +p.monto_profesional||0;
+    porProf[n].cant++;
+  });
+  
+  div.innerHTML = Object.entries(porProf).map(([nombre,d])=>`
+    <div class="ganancia-prof-row">
+      <div class="avatar" style="width:36px;height:36px;font-size:14px">${nombre.split(' ').map(w=>w[0]).slice(0,2).join('')}</div>
+      <div style="flex:1;margin-left:10px">
+        <div style="font-weight:600;font-size:14px">${nombre}</div>
+        <div style="font-size:12px;color:var(--text-soft)">${d.cant} consulta${d.cant>1?'s':''}</div>
+      </div>
+      <div style="text-align:right;margin-right:16px">
+        <div style="font-size:12px;color:var(--text-soft)">Total</div>
+        <div style="font-weight:700">$${d.total.toLocaleString('es-AR')}</div>
+      </div>
+      <div style="text-align:right;margin-right:16px">
+        <div style="font-size:12px;color:var(--sage)">Centro</div>
+        <div style="font-weight:700;color:var(--sage)">$${d.centro.toLocaleString('es-AR')}</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:12px;color:var(--bark)">Profesional</div>
+        <div style="font-weight:700;color:var(--bark)">$${d.prof.toLocaleString('es-AR')}</div>
+      </div>
+    </div>`).join('');
+}
+
+function renderResumenAnual(){
+  const anio = parseInt(document.getElementById('balance-anio')?.value || new Date().getFullYear());
+  const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const body = document.getElementById('resumen-anual-table');
+  body.innerHTML = meses.map((mes,i)=>{
+    const m = `${anio}-${String(i+1).padStart(2,'0')}`;
+    const ingConsultas = pagos_data.filter(p=>p.fecha?.startsWith(m)).reduce((a,b)=>a+(+b.monto_centro||0),0);
+    const ingOtros = movimientos_data.filter(x=>x.fecha?.startsWith(m)&&x.tipo==='ingreso').reduce((a,b)=>a+(+b.monto||0),0);
+    const gastos = movimientos_data.filter(x=>x.fecha?.startsWith(m)&&x.tipo==='gasto').reduce((a,b)=>a+(+b.monto||0),0);
+    const balance = ingConsultas + ingOtros - gastos;
+    
+    return `<tr>
+      <td>${mes}</td>
+      <td>$${ingConsultas.toLocaleString('es-AR')}</td>
+      <td>$${ingOtros.toLocaleString('es-AR')}</td>
+      <td style="color:#e74c3c">$${gastos.toLocaleString('es-AR')}</td>
+      <td style="font-weight:700;color:${balance>=0?'#2ecc71':'#e74c3c'}">${balance>=0?'+':''}$${balance.toLocaleString('es-AR')}</td>
+    </tr>`;
+  }).join('');
+}
+
+function initAnioSelect(){
+  const sel = document.getElementById('balance-anio');
+  if(!sel) return;
+  const anioActual = new Date().getFullYear();
+  for(let y=anioActual; y>=anioActual-3; y--){
+    sel.innerHTML += `<option value="${y}">${y}</option>`;
+  }
+}
 
 </script>
 </body>

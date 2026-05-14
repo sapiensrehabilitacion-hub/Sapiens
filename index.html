@@ -605,6 +605,7 @@ tbody td{padding:12px 14px}
 
 <div class="notif" id="notif"></div>
 <script>
+// Global state declarations
 const SUPA_URL = 'https://pjlpldpqqbhigwqxfykf.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBqbHBsZHBxcWJoaWd3cXhmeWtmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1OTMzMTgsImV4cCI6MjA5NDE2OTMxOH0.pgbUFVRauhtcrtLBlFBbBa-FZvdIOEUw1jdIxGMUnf8';
 const sb = supabase.createClient(SUPA_URL, SUPA_KEY);
@@ -1092,7 +1093,6 @@ async function enviarRecordatoriosWhatsapp(){
 }
 
 // ── CONTABLE ──
-let tiposConsulta = [];
 
 async function loadContable(){
   tiposConsulta = await dbGet('tipos_consulta');
@@ -1113,7 +1113,6 @@ async function loadContable(){
   updateCategorias();
 }
 
-let pagos_data = [];
 
 function renderContable(){
   const mes = new Date().toISOString().slice(0,7);
@@ -1239,7 +1238,6 @@ async function deleteTipo(id){ if(!confirm('¿Eliminar tipo?')) return; await db
 
 
 // ── MOVIMIENTOS (INGRESOS/GASTOS) ──
-let movimientos_data = [];
 
 const CATEGORIAS = {
   ingreso: ['Otros ingresos','Alquiler cobrado','Subsidio','Donación','Venta de insumos'],
@@ -1398,10 +1396,6 @@ function initAnioSelect(){
 
 
 // ══ SESIONES ══
-let sesiones_data = [];
-let sesion_pacs_data = [];
-let currentSesionId = null;
-let currentSesionPct = 20;
 
 async function loadSesiones(){
   sesiones_data = await dbGet('sesiones');

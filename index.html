@@ -14,7 +14,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 #login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#4a6652 0%,#5c7a65 40%,#7a9b82 70%,#c4a882 100%);position:relative;overflow:hidden}
 #login-screen::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 50%,rgba(196,168,130,0.18) 0%,transparent 60%),radial-gradient(ellipse at 80% 20%,rgba(255,255,255,0.08) 0%,transparent 50%)}
 .login-card{background:var(--white);border-radius:24px;padding:48px 40px;width:420px;box-shadow:0 24px 80px rgba(0,0,0,0.22);position:relative;z-index:1}
-.login-logo{text-align:center;margin-bottom:28px}
+.login-logo{text-align:center;margin-bottom:28px;overflow:hidden}
 .login-logo img{width:90px;height:90px;object-fit:contain;border-radius:50%;display:block;margin:0 auto}
 .login-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;color:var(--sage);text-align:center;line-height:1.3;margin-bottom:4px}
 .login-sub{text-align:center;font-size:12px;color:var(--text-soft);letter-spacing:.5px;text-transform:uppercase;margin-bottom:32px}
@@ -162,7 +162,7 @@ tbody td{padding:12px 14px}
 <!-- LOGIN -->
 <div id="login-screen">
   <div class="login-card">
-    <div class="login-logo"><img src="https://i.ibb.co/Zpd6Jxm6/LOGO-SAPIENS-REHABILITACION-GLOBAL-3.jpg" alt="Sapiens" style="width:46px;height:46px;object-fit:cover;border-radius:50%;flex-shrink:0"></div>
+    <div class="login-logo"><img src="https://i.ibb.co/Zpd6Jxm6/LOGO-SAPIENS-REHABILITACION-GLOBAL-3.jpg" alt="Sapiens" style="width:90px;height:90px;object-fit:cover;border-radius:50%;display:block;margin:0 auto"></div>
     <div class="login-title">Sapiens Rehabilitación</div>
     <div class="login-sub">e Investigación Multidisciplinaria</div>
     <div class="field-group"><label>Usuario</label><input type="text" id="login-user" placeholder="usuario" autocomplete="username"></div>
@@ -193,6 +193,8 @@ tbody td{padding:12px 14px}
       <div class="nav-section">Pacientes</div>
       <div class="nav-item" onclick="showPanel('pacientes')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Pacientes</div>
       <div class="nav-item" onclick="showPanel('fichas')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Fichas de Evolución</div>
+      <div class="nav-item" onclick="showPanel('midia')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Mi día</div>
+      <div id="nav-contable" class="nav-item" onclick="showPanel('contable')" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Contabilidad</div>
       <div id="nav-admin" class="nav-item" onclick="showPanel('admin')" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>Administración</div>
     </nav>
     <div class="sidebar-footer"><button class="btn-logout" onclick="doLogout()">Cerrar sesión</button></div>
@@ -246,6 +248,7 @@ tbody td{padding:12px 14px}
             <div style="display:flex;gap:8px">
               <button class="btn btn-sage btn-sm" onclick="openTurnoModal()">+ Agregar turno</button>
               <button class="btn btn-bark btn-sm" onclick="enviarListadoProfesionales()" id="btn-enviar-mail">📧 Enviar listado a profesionales</button>
+              <button class="btn btn-sage btn-sm" onclick="enviarRecordatoriosWhatsapp()">📱 Recordatorios WhatsApp</button>
             </div>
           </div>
           <div id="recordatorios-list"></div>
@@ -400,6 +403,31 @@ tbody td{padding:12px 14px}
 </div>
 
 <div class="loading-overlay" id="loading" style="display:none"><div class="spinner"></div><p style="color:var(--text-soft);font-size:14px" id="loading-msg">Cargando...</p></div>
+
+<!-- MODAL TIPO CONSULTA -->
+<div class="modal-overlay" id="modal-tipo">
+  <div class="modal" style="width:440px">
+    <button class="modal-close" onclick="closeModal('modal-tipo')">×</button>
+    <div class="modal-title">Tipo de Consulta</div>
+    <div class="form-row"><div class="form-field"><label>Nombre</label><input type="text" id="tipo-nombre" placeholder="Ej: Kinesiología, Control..."></div></div>
+    <div class="form-row cols-2">
+      <div class="form-field"><label>Valor ($)</label><input type="number" id="tipo-valor" placeholder="0"></div>
+      <div class="form-field"><label>% Centro</label><input type="number" id="tipo-pct" value="20" placeholder="20"></div>
+    </div>
+    <div class="btn-row"><button class="btn btn-sage" onclick="saveTipo()">Guardar</button><button class="btn btn-outline" onclick="closeModal('modal-tipo')">Cancelar</button></div>
+  </div>
+</div>
+
+<!-- MODAL WHATSAPP RECORDATORIO -->
+<div class="modal-overlay" id="modal-whatsapp">
+  <div class="modal" style="width:520px">
+    <button class="modal-close" onclick="closeModal('modal-whatsapp')">×</button>
+    <div class="modal-title">📱 Enviar recordatorio por WhatsApp</div>
+    <div id="whatsapp-list"></div>
+    <div class="btn-row"><button class="btn btn-outline" onclick="closeModal('modal-whatsapp')">Cerrar</button></div>
+  </div>
+</div>
+
 <div class="notif" id="notif"></div>
 <script>
 const SUPA_URL = 'https://pjlpldpqqbhigwqxfykf.supabase.co';
@@ -484,10 +512,11 @@ function doLogout() {
   document.getElementById('login-pass').value='';
   document.getElementById('login-error').style.display='none';
   document.getElementById('nav-admin').style.display='none';
+  document.getElementById('nav-contable').style.display='none';
 }
 
 // ── NAV ──
-const panelTitles={dashboard:'Dashboard',agenda:'Agenda',recordatorios:'Recordatorios',pacientes:'Pacientes',fichas:'Fichas de Evolución',admin:'Administración'};
+const panelTitles={dashboard:'Dashboard',agenda:'Agenda',recordatorios:'Recordatorios',pacientes:'Pacientes',fichas:'Fichas de Evolución',admin:'Administración',midia:'Mi Día',contable:'Contabilidad'};
 async function showPanel(name) {
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
@@ -506,6 +535,8 @@ async function showPanel(name) {
   if(name==='pacientes') renderPacientes();
   if(name==='fichas') renderFichas();
   if(name==='admin') renderUsers();
+  if(name==='midia') renderMiDia();
+  if(name==='contable') loadContable();
 }
 
 // ── DASHBOARD ──
@@ -578,7 +609,7 @@ function renderPacientes(filter=''){
   const body=document.getElementById('pacientes-table'); body.innerHTML='';
   let list=pacientes.filter(p=>!filter||`${p.nombre}${p.apellido}${p.dni}`.toLowerCase().includes(filter.toLowerCase()));
   if(!list.length){ body.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--text-soft);padding:20px">Sin pacientes</td></tr>'; return; }
-  list.forEach(p=>{ body.innerHTML+=`<tr><td><b>${p.apellido}, ${p.nombre}</b></td><td>${p.dni||'—'}</td><td>${p.fecha_nac?formatDate(p.fecha_nac):'—'}</td><td>${p.telefono||'—'}</td><td>${p.obra_social||'—'}</td><td>${p.profesional_nombre||'—'}</td><td><button class="btn btn-sage btn-sm" onclick="openFichaModal('${p.id}')">+ Ficha</button> <button class="btn btn-outline btn-sm" onclick="informePaciente('${p.id}')">📋 Informe</button> <button class="btn btn-danger btn-sm" onclick="deletePaciente('${p.id}')">×</button></td></tr>`; });
+  list.forEach(p=>{ body.innerHTML+=`<tr><td><b>${p.apellido}, ${p.nombre}</b><br><span style="font-size:11px;color:var(--text-soft)">ID: ${p.dni||'—'}</span></td><td>${p.dni||'—'}</td><td>${p.fecha_nac?formatDate(p.fecha_nac):'—'}</td><td>${p.telefono||'—'}</td><td>${p.obra_social||'—'}</td><td>${p.profesional_nombre||'—'}</td><td><button class="btn btn-sage btn-sm" onclick="openFichaModal('${p.id}')">+ Ficha</button> <button class="btn btn-outline btn-sm" onclick="informePaciente('${p.id}')">📋 Informe</button> <button class="btn btn-danger btn-sm" onclick="deletePaciente('${p.id}')">×</button></td></tr>`; });
 }
 function filterPacientes(v){ renderPacientes(v); }
 
@@ -781,6 +812,242 @@ document.querySelectorAll('.modal-overlay').forEach(o=>o.addEventListener('click
 
 // ── START ──
 initApp();
+
+// ── MI DIA ──
+async function renderMiDia(){
+  const now = new Date();
+  const hoy = now.toISOString().slice(0,10);
+  document.getElementById('midia-fecha').textContent = now.toLocaleDateString('es-AR',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+  
+  // Filter turnos for current user today
+  let misTurnos = turnos.filter(t => t.fecha === hoy);
+  if(currentUser.rol !== 'admin'){
+    misTurnos = misTurnos.filter(t => t.profesional_nombre === currentUser.nombre);
+  }
+  misTurnos = misTurnos.sort((a,b) => a.hora > b.hora ? 1 : -1);
+  
+  const horaActual = now.toTimeString().slice(0,5);
+  const atendidos = misTurnos.filter(t => t.estado === 'realizado').length;
+  const pendientes = misTurnos.filter(t => t.estado !== 'realizado' && t.estado !== 'cancelado').length;
+  
+  // Find proximo
+  const proximos = misTurnos.filter(t => t.hora >= horaActual && t.estado !== 'realizado' && t.estado !== 'cancelado');
+  const proximoId = proximos.length > 0 ? proximos[0].id : null;
+  
+  document.getElementById('midia-stats').innerHTML = `
+    <div class="stat-card" style="flex:1"><div class="stat-num">${misTurnos.length}</div><div class="stat-label">Total hoy</div></div>
+    <div class="stat-card sage-light" style="flex:1"><div class="stat-num">${atendidos}</div><div class="stat-label">Atendidos</div></div>
+    <div class="stat-card bark" style="flex:1"><div class="stat-num">${pendientes}</div><div class="stat-label">Pendientes</div></div>
+  `;
+  
+  const div = document.getElementById('midia-list');
+  if(!misTurnos.length){ div.innerHTML='<div class="empty-state"><p>No tenés turnos para hoy</p></div>'; return; }
+  
+  div.innerHTML = misTurnos.map(t => {
+    const pac = pacientes.find(p => p.id === t.paciente_id);
+    const esProximo = t.id === proximoId;
+    const esAtendido = t.estado === 'realizado';
+    let cls = esAtendido ? 'atendido' : esProximo ? 'proximo' : '';
+    let badgeTxt = esAtendido ? '✓ Atendido' : esProximo ? '⏰ Próximo' : 'Pendiente';
+    let badgeCls = esAtendido ? 'badge-atendido' : esProximo ? 'badge-proximo' : 'badge-pendiente2';
+    const dni = pac?.dni || '';
+    const tel = pac?.telefono || '';
+    return `<div class="turno-hoy-card ${cls}">
+      <div class="turno-hora">${t.hora?.slice(0,5)}</div>
+      <div class="turno-pac-info">
+        <div class="turno-pac-nombre">${pac ? pac.apellido+', '+pac.nombre : 'Sin paciente'}</div>
+        <div class="turno-pac-sub">ID: ${dni||'—'} · ${t.motivo||'Sin motivo'} · ${pac?.obra_social||'Sin OS'}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        ${tel ? `<button class="btn btn-sage btn-sm" onclick="abrirWhatsapp('${tel}','${pac?pac.nombre:''}','${t.fecha}','${t.hora?.slice(0,5)}')">📱 WA</button>` : ''}
+        ${!esAtendido ? `<button class="btn btn-outline btn-sm" onclick="marcarAtendido('${t.id}')">✓ Atendido</button>` : ''}
+        <span class="turno-estado-badge ${badgeCls}">${badgeTxt}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function marcarAtendido(id){
+  showLoading('Actualizando...');
+  await dbUpdate('turnos', id, {estado: 'realizado'});
+  turnos = await dbGet('turnos');
+  hideLoading();
+  renderMiDia();
+  notify('Turno marcado como atendido ✓');
+}
+
+// ── WHATSAPP ──
+function abrirWhatsapp(tel, nombre, fecha, hora){
+  const telLimpio = tel.replace(/[^0-9]/g,'');
+  const telConCodigo = telLimpio.startsWith('54') ? telLimpio : '54' + telLimpio;
+  const fechaLabel = new Date(fecha+'T12:00:00').toLocaleDateString('es-AR',{weekday:'long',day:'2-digit',month:'long'});
+  const msg = encodeURIComponent(`Hola ${nombre}! 👋 Le recordamos que tiene un turno programado en Sapiens Rehabilitación e Investigación Multidisciplinaria para el ${fechaLabel} a las ${hora} hs. Ante cualquier inconveniente, comuníquese con nosotros. ¡Hasta pronto!`);
+  window.open(`https://wa.me/${telConCodigo}?text=${msg}`, '_blank');
+}
+
+async function enviarRecordatoriosWhatsapp(){
+  const manana = new Date(); manana.setDate(manana.getDate()+1);
+  const mananaStr = manana.toISOString().slice(0,10);
+  const mananaLabel = manana.toLocaleDateString('es-AR',{weekday:'long',day:'2-digit',month:'long'});
+  const turnosManana = turnos.filter(t => t.fecha === mananaStr && t.estado !== 'cancelado');
+  
+  const div = document.getElementById('whatsapp-list');
+  if(!turnosManana.length){
+    div.innerHTML = '<div class="empty-state"><p>No hay turnos para mañana</p></div>';
+    openModal('modal-whatsapp');
+    return;
+  }
+  
+  div.innerHTML = `<p style="color:var(--text-soft);font-size:13px;margin-bottom:16px">Turnos para <strong>${mananaLabel}</strong>. Tocá el botón para abrir WhatsApp con el mensaje listo:</p>` +
+    turnosManana.sort((a,b)=>a.hora>b.hora?1:-1).map(t => {
+      const pac = pacientes.find(p => p.id === t.paciente_id);
+      const tel = pac?.telefono || '';
+      return `<div style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--sage-mist);border-radius:var(--radius-sm);margin-bottom:8px">
+        <div style="flex:1"><strong>${t.hora?.slice(0,5)} hs</strong> — ${pac ? pac.apellido+', '+pac.nombre : 'Sin paciente'}<br>
+        <span style="font-size:12px;color:var(--text-soft)">Tel: ${tel||'Sin teléfono'}</span></div>
+        ${tel ? `<button class="btn btn-sage btn-sm" onclick="abrirWhatsapp('${tel}','${pac?pac.nombre:''}','${t.fecha}','${t.hora?.slice(0,5)}')">📱 Enviar WA</button>` : '<span style="font-size:12px;color:#e74c3c">Sin teléfono</span>'}
+      </div>`;
+    }).join('');
+  openModal('modal-whatsapp');
+}
+
+// ── CONTABLE ──
+let tiposConsulta = [];
+
+async function loadContable(){
+  tiposConsulta = await dbGet('tipos_consulta');
+  pagos_data = await dbGet('pagos');
+  renderContable();
+  renderTipos();
+  renderPagos();
+  populateContableSelects();
+  populateFiltros();
+}
+
+let pagos_data = [];
+
+function renderContable(){
+  const mes = new Date().toISOString().slice(0,7);
+  const pagosMes = pagos_data.filter(p => p.fecha?.startsWith(mes));
+  const total = pagosMes.reduce((a,b) => a + (+b.valor_total||0), 0);
+  const centro = pagosMes.reduce((a,b) => a + (+b.monto_centro||0), 0);
+  const profs = pagosMes.reduce((a,b) => a + (+b.monto_profesional||0), 0);
+  document.getElementById('cont-total').textContent = '$' + total.toLocaleString('es-AR');
+  document.getElementById('cont-centro').textContent = '$' + centro.toLocaleString('es-AR');
+  document.getElementById('cont-profs').textContent = '$' + profs.toLocaleString('es-AR');
+  document.getElementById('cont-consultas').textContent = pagosMes.length;
+}
+
+function renderTipos(){
+  const div = document.getElementById('tipos-list');
+  if(!tiposConsulta.length){ div.innerHTML='<div class="empty-state"><p>Sin tipos de consulta</p></div>'; return; }
+  div.innerHTML = tiposConsulta.filter(t=>t.activo).map(t => `
+    <div class="tipo-consulta-row">
+      <div style="flex:1"><strong style="font-size:14px">${t.nombre}</strong><br><span style="font-size:12px;color:var(--text-soft)">Centro: ${t.porcentaje_centro}%</span></div>
+      <div style="font-size:18px;font-weight:700;color:var(--bark)">$${(+t.valor).toLocaleString('es-AR')}</div>
+      <button class="btn btn-danger btn-sm" onclick="deleteTipo('${t.id}')">×</button>
+    </div>`).join('');
+}
+
+function renderPagos(){
+  const body = document.getElementById('pagos-table'); body.innerHTML='';
+  const mesFiltro = document.getElementById('filtro-mes')?.value || '';
+  const profFiltro = document.getElementById('filtro-prof-cont')?.value || '';
+  let list = [...pagos_data];
+  if(mesFiltro) list = list.filter(p => p.fecha?.startsWith(mesFiltro));
+  if(profFiltro) list = list.filter(p => p.profesional_nombre === profFiltro);
+  list = list.sort((a,b) => b.fecha > a.fecha ? 1 : -1);
+  if(!list.length){ body.innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--text-soft);padding:20px">Sin pagos registrados</td></tr>'; return; }
+  list.forEach(p => {
+    const pac = pacientes.find(x => x.id === p.paciente_id);
+    body.innerHTML += `<tr>
+      <td>${formatDate(p.fecha)}</td>
+      <td>${pac ? pac.apellido+', '+pac.nombre : '—'}</td>
+      <td>${p.profesional_nombre||'—'}</td>
+      <td>${p.tipo_consulta_nombre||'—'}</td>
+      <td style="font-weight:700">$${(+p.valor_total).toLocaleString('es-AR')}</td>
+      <td style="color:var(--sage)">$${(+p.monto_centro).toLocaleString('es-AR')}</td>
+      <td style="color:var(--bark)">$${(+p.monto_profesional).toLocaleString('es-AR')}</td>
+      <td><span class="badge ${p.estado==='pagado'?'badge-green':'badge-yellow'}">${p.estado}</span></td>
+      <td><button class="btn btn-danger btn-sm" onclick="deletePago('${p.id}')">×</button></td>
+    </tr>`;
+  });
+  // Update totals
+  renderContable();
+}
+
+function populateContableSelects(){
+  populatePacSelect('pago-paciente');
+  populateProfSelect('pago-prof');
+  const sel = document.getElementById('pago-tipo');
+  sel.innerHTML = '<option value="">Seleccionar tipo...</option>';
+  tiposConsulta.filter(t=>t.activo).forEach(t => {
+    sel.innerHTML += `<option value="${t.id}" data-valor="${t.valor}" data-pct="${t.porcentaje_centro}">${t.nombre} — $${(+t.valor).toLocaleString('es-AR')}</option>`;
+  });
+  document.getElementById('pago-fecha').value = new Date().toISOString().slice(0,10);
+}
+
+function populateFiltros(){
+  const sel = document.getElementById('filtro-mes');
+  const meses = [...new Set(pagos_data.map(p=>p.fecha?.slice(0,7)).filter(Boolean))].sort().reverse();
+  sel.innerHTML = '<option value="">Todos los meses</option>';
+  meses.forEach(m => { const [y,mo] = m.split('-'); sel.innerHTML += `<option value="${m}">${['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'][+mo-1]} ${y}</option>`; });
+  const sel2 = document.getElementById('filtro-prof-cont');
+  sel2.innerHTML = '<option value="">Todos los profesionales</option>';
+  usuarios.forEach(u => sel2.innerHTML += `<option value="${u.nombre}">${u.nombre}</option>`);
+}
+
+function calcPago(){
+  const sel = document.getElementById('pago-tipo');
+  const opt = sel.options[sel.selectedIndex];
+  if(opt && opt.dataset.valor) document.getElementById('pago-valor').value = opt.dataset.valor;
+  const val = parseFloat(document.getElementById('pago-valor').value) || 0;
+  const pct = parseFloat(document.getElementById('pago-pct').value) || 20;
+  const centro = val * pct / 100;
+  const prof = val - centro;
+  document.getElementById('prev-centro').textContent = '$' + centro.toLocaleString('es-AR');
+  document.getElementById('prev-prof').textContent = '$' + prof.toLocaleString('es-AR');
+  document.getElementById('pago-preview').style.display = val > 0 ? 'block' : 'none';
+}
+
+async function savePago(){
+  const pacId = document.getElementById('pago-paciente').value;
+  const profId = document.getElementById('pago-prof').value;
+  const tipoId = document.getElementById('pago-tipo').value;
+  const val = parseFloat(document.getElementById('pago-valor').value);
+  const pct = parseFloat(document.getElementById('pago-pct').value) || 20;
+  const fecha = document.getElementById('pago-fecha').value;
+  if(!pacId||!val||!fecha){ notify('Completá paciente, valor y fecha'); return; }
+  const prof = usuarios.find(u=>u.id===profId);
+  const tipo = tiposConsulta.find(t=>t.id===tipoId);
+  const centro = val * pct / 100;
+  const profMonto = val - centro;
+  showLoading('Registrando pago...');
+  await dbInsert('pagos',{ paciente_id:pacId, profesional_id:profId||null, profesional_nombre:prof?prof.nombre:'', tipo_consulta_id:tipoId||null, tipo_consulta_nombre:tipo?tipo.nombre:'', valor_total:val, porcentaje_centro:pct, monto_centro:centro, monto_profesional:profMonto, fecha, estado:'pagado', observaciones:document.getElementById('pago-obs').value });
+  pagos_data = await dbGet('pagos');
+  hideLoading();
+  renderPagos();
+  renderContable();
+  notify('Pago registrado ✓');
+  document.getElementById('pago-valor').value='';
+  document.getElementById('pago-obs').value='';
+  document.getElementById('pago-preview').style.display='none';
+}
+
+async function deletePago(id){ if(!confirm('¿Eliminar pago?')) return; showLoading('Eliminando...'); await dbDelete('pagos',id); pagos_data=await dbGet('pagos'); hideLoading(); renderPagos(); }
+
+function openTipoModal(){ document.getElementById('tipo-nombre').value=''; document.getElementById('tipo-valor').value=''; document.getElementById('tipo-pct').value='20'; openModal('modal-tipo'); }
+async function saveTipo(){
+  const nm = document.getElementById('tipo-nombre').value.trim();
+  const val = parseFloat(document.getElementById('tipo-valor').value);
+  if(!nm||!val){ notify('Completá nombre y valor'); return; }
+  showLoading('Guardando...');
+  await dbInsert('tipos_consulta',{ nombre:nm, valor:val, porcentaje_centro:parseFloat(document.getElementById('tipo-pct').value)||20, activo:true });
+  tiposConsulta = await dbGet('tipos_consulta');
+  hideLoading(); closeModal('modal-tipo'); renderTipos(); populateContableSelects(); notify('Tipo guardado ✓');
+}
+async function deleteTipo(id){ if(!confirm('¿Eliminar tipo?')) return; await dbUpdate('tipos_consulta',id,{activo:false}); tiposConsulta=await dbGet('tipos_consulta'); renderTipos(); populateContableSelects(); }
+
 </script>
 </body>
 </html>

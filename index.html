@@ -566,7 +566,7 @@ tbody td{padding:12px 14px}
 
 <!-- MODAL SESION DETALLE (planilla) -->
 <div class="modal-overlay" id="modal-sesion-detalle">
-  <div class="modal" style="width:1100px;max-width:98vw">
+  <div class="modal" style="width:1100px;max-width:98vw;overflow-x:auto">
     <button class="modal-close" onclick="closeModal('modal-sesion-detalle')">×</button>
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
       <div class="modal-title" style="margin:0" id="ses-detalle-title">Sesión</div>
@@ -576,8 +576,8 @@ tbody td{padding:12px 14px}
       </div>
     </div>
     <!-- Tabla de pacientes -->
-    <div style="overflow-x:auto">
-      <div class="sesion-pac-row sesion-pac-header">
+    <div style="overflow-x:auto;min-width:100%">
+      <div class="sesion-pac-row sesion-pac-header" style="min-width:900px">
         <div>Hora</div><div>Paciente</div><div>1ra vez</div>
         <div>Seña $</div><div>Pago completo $</div>
         <div>Forma pago</div><div>Total</div><div></div>

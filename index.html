@@ -1499,52 +1499,81 @@ async function openSesionDetalle(sesionId){
 
 function renderSesionRows(valorBase){
   const div = document.getElementById('sesion-pacientes-rows');
-  // Ensure at least 15 rows
   while(sesion_pacs_data.length < 15) sesion_pacs_data.push({_new:true});
-  div.innerHTML = sesion_pacs_data.map((p, i) => `
-    <div class="sesion-pac-row" id="srow-${i}">
-      <input class="sesion-input small" type="text" placeholder="9:00" value="${p.hora||''}" onchange="updateSesionRow(${i},'hora',this.value)">
-      <div class="autocomplete-wrapper" style="position:relative">
-        <input class="sesion-input ${p.paciente_id?'pac-linked':''}" type="text" 
-          placeholder="Nombre paciente" 
-          value="${p.paciente_nombre||''}" 
-          id="pac-input-${i}"
-          oninput="buscarPaciente(${i},this.value)"
-          onchange="updateSesionRow(${i},'paciente_nombre',this.value)"
-          autocomplete="off">
-        <div class="autocomplete-list" id="pac-list-${i}" style="display:none"></div>
-        ${p.paciente_id ? `<div style="font-size:10px;color:var(--sage);margin-top:2px">ID: ${p.paciente_dni||p.paciente_id?.slice(0,8)}</div>` : ''}
-      </div>
-      <select class="sesion-select" onchange="updateSesionRow(${i},'primera_vez',this.value==='si')">
-        <option value="no" ${!p.primera_vez?'selected':''}>No</option>
-        <option value="si" ${p.primera_vez?'selected':''}>Sí</option>
-      </select>
-      <div style="display:flex;gap:4px">
-        <input class="sesion-input" type="number" placeholder="Seña $" value="${p.seña_monto||''}" style="width:70px" oninput="updateSesionRow(${i},'seña_monto',+this.value);calcSesionTotales()">
-        <select class="sesion-select" style="width:50px" onchange="updateSesionRow(${i},'seña_forma',this.value)">
-          <option value="T" ${p.seña_forma==='T'||!p.seña_forma?'selected':''}>T</option>
-          <option value="E" ${p.seña_forma==='E'?'selected':''}>E</option>
-          <option value="M" ${p.seña_forma==='M'?'selected':''}>M</option>
+  
+  div.innerHTML = '<table style="width:100%;border-collapse:collapse;font-size:13px">' +
+    '<thead><tr style="background:var(--sage-mist)">' +
+    '<th style="padding:8px 6px;text-align:left;font-size:11px;color:var(--text-soft);font-weight:600;text-transform:uppercase;width:60px">Hora</th>' +
+    '<th style="padding:8px 6px;text-align:left;font-size:11px;color:var(--text-soft);font-weight:600;text-transform:uppercase">Paciente</th>' +
+    '<th style="padding:8px 6px;text-align:center;font-size:11px;color:var(--text-soft);font-weight:600;text-transform:uppercase;width:50px">1°vez</th>' +
+    '<th style="padding:8px 6px;text-align:left;font-size:11px;color:var(--text-soft);font-weight:600;text-transform:uppercase;width:130px">Seña $</th>' +
+    '<th style="padding:8px 6px;text-align:left;font-size:11px;color:var(--text-soft);font-weight:600;text-transform:uppercase;width:130px">Completo $</th>' +
+    '<th style="padding:8px 6px;text-align:center;font-size:11px;color:var(--text-soft);font-weight:600;text-transform:uppercase;width:80px">Estado</th>' +
+    '<th style="padding:8px 6px;text-align:right;font-size:11px;color:var(--text-soft);font-weight:600;text-transform:uppercase;width:80px">Total</th>' +
+    '<th style="width:30px"></th>' +
+    '</tr></thead><tbody id="ses-tbody"></tbody></table>';
+
+  const tbody = document.getElementById('ses-tbody');
+  tbody.innerHTML = sesion_pacs_data.map((p, i) => `
+    <tr style="border-bottom:1px solid var(--border)" id="srow-${i}">
+      <td style="padding:6px 4px">
+        <input class="sesion-input" type="text" placeholder="9:00" value="${p.hora||''}" 
+          style="width:58px" onchange="updateSesionRow(${i},'hora',this.value)">
+      </td>
+      <td style="padding:6px 4px">
+        <div class="autocomplete-wrapper">
+          <input class="sesion-input ${p.paciente_id?'pac-linked':''}" type="text" 
+            placeholder="Nombre paciente" value="${p.paciente_nombre||''}" 
+            id="pac-input-${i}" style="width:100%"
+            oninput="buscarPaciente(${i},this.value)"
+            onchange="updateSesionRow(${i},'paciente_nombre',this.value)"
+            autocomplete="off">
+          <div class="autocomplete-list" id="pac-list-${i}" style="display:none"></div>
+          ${p.paciente_id ? `<div style="font-size:10px;color:var(--sage);font-weight:600">ID: ${p.paciente_dni||''}</div>` : ''}
+        </div>
+      </td>
+      <td style="padding:6px 4px;text-align:center">
+        <select class="sesion-select" style="width:48px" onchange="updateSesionRow(${i},'primera_vez',this.value==='si')">
+          <option value="no" ${!p.primera_vez?'selected':''}>No</option>
+          <option value="si" ${p.primera_vez?'selected':''}>Sí</option>
         </select>
-      </div>
-      <div style="display:flex;gap:4px">
-        <input class="sesion-input" type="number" placeholder="Completo $" value="${p.completo_monto||''}" style="width:70px" oninput="updateSesionRow(${i},'completo_monto',+this.value);calcSesionTotales()">
-        <select class="sesion-select" style="width:50px" onchange="updateSesionRow(${i},'completo_forma',this.value)">
-          <option value="T" ${p.completo_forma==='T'||!p.completo_forma?'selected':''}>T</option>
-          <option value="E" ${p.completo_forma==='E'?'selected':''}>E</option>
-          <option value="M" ${p.completo_forma==='M'?'selected':''}>M</option>
+      </td>
+      <td style="padding:6px 4px">
+        <div style="display:flex;gap:3px">
+          <input class="sesion-input" type="number" placeholder="$" value="${p.seña_monto||''}" 
+            style="width:75px" oninput="updateSesionRow(${i},'seña_monto',+this.value);calcSesionTotales()">
+          <select class="sesion-select" style="width:48px" onchange="updateSesionRow(${i},'seña_forma',this.value)">
+            <option value="T" ${p.seña_forma==='T'||!p.seña_forma?'selected':''}>T</option>
+            <option value="E" ${p.seña_forma==='E'?'selected':''}>E</option>
+            <option value="M" ${p.seña_forma==='M'?'selected':''}>M</option>
+          </select>
+        </div>
+      </td>
+      <td style="padding:6px 4px">
+        <div style="display:flex;gap:3px">
+          <input class="sesion-input" type="number" placeholder="$" value="${p.completo_monto||''}" 
+            style="width:75px" oninput="updateSesionRow(${i},'completo_monto',+this.value);calcSesionTotales()">
+          <select class="sesion-select" style="width:48px" onchange="updateSesionRow(${i},'completo_forma',this.value)">
+            <option value="T" ${p.completo_forma==='T'||!p.completo_forma?'selected':''}>T</option>
+            <option value="E" ${p.completo_forma==='E'?'selected':''}>E</option>
+            <option value="M" ${p.completo_forma==='M'?'selected':''}>M</option>
+          </select>
+        </div>
+      </td>
+      <td style="padding:6px 4px">
+        <select class="sesion-select" style="width:78px" onchange="updateSesionRow(${i},'estado',this.value)">
+          <option value="pagado" ${p.estado==='pagado'||!p.estado?'selected':''}>Pagado</option>
+          <option value="debe" ${p.estado==='debe'?'selected':''}>Debe</option>
+          <option value="pendiente" ${p.estado==='pendiente'?'selected':''}>Pend.</option>
         </select>
-      </div>
-      <select class="sesion-select" onchange="updateSesionRow(${i},'estado',this.value)">
-        <option value="pagado" ${p.estado==='pagado'||!p.estado?'selected':''}>Pagado</option>
-        <option value="debe" ${p.estado==='debe'?'selected':''}>Debe</option>
-        <option value="pendiente" ${p.estado==='pendiente'?'selected':''}>Pendiente</option>
-      </select>
-      <div style="font-weight:700;font-size:13px;color:var(--sage)" id="stotal-${i}">
+      </td>
+      <td style="padding:6px 4px;text-align:right;font-weight:700;color:var(--sage);font-size:13px" id="stotal-${i}">
         ${(+(p.seña_monto||0) + +(p.completo_monto||0)) > 0 ? '$'+((+(p.seña_monto||0))+(+(p.completo_monto||0))).toLocaleString('es-AR') : '—'}
-      </div>
-      <button style="background:none;border:none;color:#e74c3c;cursor:pointer;font-size:16px" onclick="removeSesionRow(${i})">×</button>
-    </div>`).join('');
+      </td>
+      <td style="padding:6px 4px;text-align:center">
+        <button style="background:none;border:none;color:#e74c3c;cursor:pointer;font-size:16px;line-height:1" onclick="removeSesionRow(${i})">×</button>
+      </td>
+    </tr>`).join('');
   calcSesionTotales();
 }
 

@@ -1504,7 +1504,17 @@ function renderSesionRows(valorBase){
   div.innerHTML = sesion_pacs_data.map((p, i) => `
     <div class="sesion-pac-row" id="srow-${i}">
       <input class="sesion-input small" type="text" placeholder="9:00" value="${p.hora||''}" onchange="updateSesionRow(${i},'hora',this.value)">
-      <input class="sesion-input" type="text" placeholder="Nombre paciente" value="${p.paciente_nombre||''}" onchange="updateSesionRow(${i},'paciente_nombre',this.value)">
+      <div class="autocomplete-wrapper" style="position:relative">
+        <input class="sesion-input ${p.paciente_id?'pac-linked':''}" type="text" 
+          placeholder="Nombre paciente" 
+          value="${p.paciente_nombre||''}" 
+          id="pac-input-${i}"
+          oninput="buscarPaciente(${i},this.value)"
+          onchange="updateSesionRow(${i},'paciente_nombre',this.value)"
+          autocomplete="off">
+        <div class="autocomplete-list" id="pac-list-${i}" style="display:none"></div>
+        ${p.paciente_id ? `<div style="font-size:10px;color:var(--sage);margin-top:2px">ID: ${p.paciente_dni||p.paciente_id?.slice(0,8)}</div>` : ''}
+      </div>
       <select class="sesion-select" onchange="updateSesionRow(${i},'primera_vez',this.value==='si')">
         <option value="no" ${!p.primera_vez?'selected':''}>No</option>
         <option value="si" ${p.primera_vez?'selected':''}>Sí</option>
@@ -1605,6 +1615,7 @@ async function saveSesionPacientes(){
       sesion_id: currentSesionId,
       hora: p.hora||'',
       paciente_nombre: p.paciente_nombre||'',
+      paciente_id: p.paciente_id||null,
       primera_vez: p.primera_vez||false,
       seña_monto: +(p.seña_monto||0),
       seña_forma: p.seña_forma||'T',
@@ -1616,6 +1627,65 @@ async function saveSesionPacientes(){
   }
   hideLoading();
   notify('Planilla guardada ✓');
+}
+
+
+// ── AUTOCOMPLETE PACIENTES EN SESIONES ──
+function buscarPaciente(rowIdx, query){
+  const listEl = document.getElementById('pac-list-'+rowIdx);
+  if(!listEl) return;
+  if(!query || query.length < 2){ listEl.style.display='none'; return; }
+  
+  const q = query.toLowerCase();
+  const results = pacientes.filter(p => 
+    (p.nombre+' '+p.apellido).toLowerCase().includes(q) ||
+    (p.apellido+' '+p.nombre).toLowerCase().includes(q) ||
+    (p.dni||'').includes(q)
+  ).slice(0, 8);
+  
+  if(!results.length){ listEl.style.display='none'; return; }
+  
+  listEl.innerHTML = results.map(p => `
+    <div class="autocomplete-item" onclick="seleccionarPaciente(${rowIdx},'${p.id}','${p.apellido}, ${p.nombre}','${p.dni||''}')">
+      <strong>${p.apellido}, ${p.nombre}</strong>
+      <span>DNI: ${p.dni||'—'} · ${p.obra_social||''}</span>
+    </div>`).join('');
+  listEl.style.display = 'block';
+  
+  // Close list when clicking outside
+  document.addEventListener('click', function closeLists(e){
+    if(!e.target.closest('.autocomplete-wrapper')){
+      listEl.style.display = 'none';
+      document.removeEventListener('click', closeLists);
+    }
+  });
+}
+
+function seleccionarPaciente(rowIdx, pacId, nombre, dni){
+  // Update input field
+  const input = document.getElementById('pac-input-'+rowIdx);
+  if(input){ 
+    input.value = nombre;
+    input.classList.add('pac-linked');
+  }
+  // Hide list
+  const listEl = document.getElementById('pac-list-'+rowIdx);
+  if(listEl) listEl.style.display = 'none';
+  
+  // Update row data
+  if(!sesion_pacs_data[rowIdx]) sesion_pacs_data[rowIdx] = {};
+  sesion_pacs_data[rowIdx].paciente_nombre = nombre;
+  sesion_pacs_data[rowIdx].paciente_id = pacId;
+  sesion_pacs_data[rowIdx].paciente_dni = dni;
+  
+  // Show DNI below input
+  const wrapper = input?.closest('.autocomplete-wrapper');
+  if(wrapper){
+    let dniDiv = wrapper.querySelector('.pac-dni-tag');
+    if(!dniDiv){ dniDiv = document.createElement('div'); dniDiv.className='pac-dni-tag'; wrapper.appendChild(dniDiv); }
+    dniDiv.style.cssText = 'font-size:10px;color:var(--sage);margin-top:2px;font-weight:600';
+    dniDiv.textContent = 'ID: ' + (dni || pacId.slice(0,8));
+  }
 }
 
 </script>

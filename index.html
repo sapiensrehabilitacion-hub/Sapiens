@@ -846,7 +846,7 @@ function doLogout() {
 }
 
 // ── NAV ──
-const panelTitles={dashboard:'Dashboard',agenda:'Agenda',recordatorios:'Recordatorios',pacientes:'Pacientes',fichas:'Fichas de Evolución',admin:'Administración',midia:'Mi Día',contable:'Contabilidad',sesiones:'Sesiones',gastos:'Gastos Compartidos',cardiopulmonar:'Rehabilitación Cardiopulmonar'};
+var panelTitles={dashboard:'Dashboard',agenda:'Agenda',recordatorios:'Recordatorios',pacientes:'Pacientes',fichas:'Fichas de Evolución',admin:'Administración',midia:'Mi Día',contable:'Contabilidad',sesiones:'Sesiones',gastos:'Gastos Compartidos',cardiopulmonar:'Rehabilitación Cardiopulmonar'};
 async function showPanel(name) {
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));

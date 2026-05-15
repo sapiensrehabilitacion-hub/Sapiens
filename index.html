@@ -191,10 +191,12 @@ tbody td{padding:12px 14px}
       <div class="nav-item" onclick="showPanel('agenda')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Agenda</div>
       <div class="nav-item" onclick="showPanel('recordatorios')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>Recordatorios</div>
       <div class="nav-section">Pacientes</div>
+      <div class="nav-item" onclick="showPanel('cardiopulmonar')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Cardiopulmonar</div>
       <div class="nav-item" onclick="showPanel('pacientes')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Pacientes</div>
       <div class="nav-item" onclick="showPanel('fichas')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Fichas de Evolución</div>
       <div class="nav-item" onclick="showPanel('sesiones')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>Sesiones</div>
       <div class="nav-item" onclick="showPanel('midia')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Mi día</div>
+      <div id="nav-gastos" class="nav-item" onclick="showPanel('gastos')" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Gastos compartidos</div>
       <div id="nav-contable" class="nav-item" onclick="showPanel('contable')" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Contabilidad</div>
       <div id="nav-admin" class="nav-item" onclick="showPanel('admin')" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>Administración</div>
     </nav>
@@ -308,6 +310,93 @@ tbody td{padding:12px 14px}
             <input type="month" id="sesion-filtro-mes" onchange="renderSesionesList()" style="padding:10px 14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:14px;font-family:'DM Sans',sans-serif;background:var(--white);outline:none">
           </div>
           <div id="sesiones-list"></div>
+        </div>
+      </div>
+
+
+
+      <!-- CARDIOPULMONAR -->
+      <div id="panel-cardiopulmonar" class="panel">
+
+        <!-- LISTA DE EVALUACIONES -->
+        <div id="cp-lista-view">
+          <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+              <div class="card-title" style="margin:0">🫁 Rehabilitación Cardiopulmonar</div>
+              <button class="btn btn-sage btn-sm" onclick="openCPEvalModal()">+ Nueva evaluación</button>
+            </div>
+            <div class="search-bar">
+              <select id="cp-filtro-pac" onchange="renderCPLista()" style="flex:1;padding:10px 14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:14px;font-family:'DM Sans',sans-serif;background:var(--white);outline:none">
+                <option value="">Todos los pacientes</option>
+              </select>
+            </div>
+            <div id="cp-lista"></div>
+          </div>
+        </div>
+
+        <!-- DETALLE DE EVALUACION -->
+        <div id="cp-detalle-view" style="display:none">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+            <button class="btn btn-outline btn-sm" onclick="closeCPDetalle()">← Volver</button>
+            <div style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;color:var(--sage)" id="cp-detalle-title"></div>
+            <button class="btn btn-bark btn-sm" onclick="generarInformeCP()" style="margin-left:auto">📄 Generar informe</button>
+          </div>
+
+          <!-- TABS DE FICHAS -->
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px" id="cp-tabs">
+            <button class="btn btn-sage btn-sm" onclick="showCPTab('signos')">💓 Signos Vitales</button>
+            <button class="btn btn-outline btn-sm" onclick="showCPTab('cat')">📋 CAT</button>
+            <button class="btn btn-outline btn-sm" onclick="showCPTab('sf36')">📋 SF-36</button>
+            <button class="btn btn-outline btn-sm" onclick="showCPTab('euroqol')">📋 EuroQoL</button>
+            <button class="btn btn-outline btn-sm" onclick="showCPTab('sgrq')">📋 Saint George</button>
+            <button class="btn btn-outline btn-sm" onclick="showCPTab('6mwt')">🚶 6MWT</button>
+            <button class="btn btn-outline btn-sm" onclick="showCPTab('sts')">🪑 Sit to Stand</button>
+            <button class="btn btn-outline btn-sm" onclick="showCPTab('tug')">⏱ TUG</button>
+            <button class="btn btn-outline btn-sm" onclick="showCPTab('barthel')">📊 Barthel</button>
+            <button class="btn btn-outline btn-sm" onclick="showCPTab('dinamometria')">✊ Dinamometría</button>
+            <button class="btn btn-outline btn-sm" onclick="showCPTab('fuerza')">💪 Fuerza 1RM</button>
+            <button class="btn btn-outline btn-sm" onclick="showCPTab('espirometria')">🫁 Espirometría</button>
+            <button class="btn btn-outline btn-sm" onclick="showCPTab('ergometria')">🚴 Ergometría</button>
+            <button class="btn btn-outline btn-sm" onclick="showCPTab('incremental')">📈 Test Incremental</button>
+            <button class="btn btn-outline btn-sm" onclick="showCPTab('cargaconstante')">🔄 Carga Constante</button>
+            <button class="btn btn-outline btn-sm" onclick="showCPTab('plan_aerobico')">🏃 Plan Aeróbico</button>
+            <button class="btn btn-outline btn-sm" onclick="showCPTab('plan_fuerza')">🏋 Plan Fuerza</button>
+          </div>
+
+          <!-- CONTENIDO DE CADA TAB -->
+          <div id="cp-tab-content"></div>
+        </div>
+      </div>
+
+      <!-- GASTOS COMPARTIDOS -->
+      <div id="panel-gastos" class="panel">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+            <div class="card-title" style="margin:0">🏠 Gastos compartidos</div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <select id="gastos-mes-sel" onchange="loadGastos()" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:14px;font-family:'DM Sans',sans-serif;background:var(--white);outline:none"></select>
+              <button class="btn btn-sage btn-sm" onclick="openGastoModal()">+ Agregar gasto</button>
+              <button class="btn btn-outline btn-sm" onclick="openSociasModal()">👥 Socias</button>
+            </div>
+          </div>
+
+          <!-- RESUMEN BALANCE -->
+          <div id="gastos-balance" style="margin-bottom:20px"></div>
+
+          <!-- TABLA GASTOS -->
+          <table id="gastos-tabla">
+            <thead>
+              <tr>
+                <th>Categoría</th>
+                <th>Descripción</th>
+                <th>Valor</th>
+                <th>Pagado por</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="gastos-tbody"></tbody>
+            <tfoot id="gastos-tfoot"></tfoot>
+          </table>
         </div>
       </div>
 
@@ -603,6 +692,53 @@ tbody td{padding:12px 14px}
   </div>
 </div>
 
+
+<!-- MODAL NUEVO GASTO -->
+<div class="modal-overlay" id="modal-gasto">
+  <div class="modal" style="width:500px">
+    <button class="modal-close" onclick="closeModal('modal-gasto')">×</button>
+    <div class="modal-title" id="gasto-modal-title">Nuevo Gasto</div>
+    <div class="form-row cols-2">
+      <div class="form-field"><label>Categoría</label>
+        <select id="gasto-cat">
+          <option>Luz</option><option>Internet</option><option>Expensas</option>
+          <option>Agua</option><option>Seguro</option><option>Redes</option>
+          <option>Agua Bidón</option><option>Limpieza</option><option>Spotify</option>
+          <option>Publicidad</option><option>Artículos librería</option>
+          <option>Artículos limpieza</option><option>Café/Yerba</option>
+          <option>Elementos gimnasio</option><option>Otros</option>
+        </select>
+      </div>
+      <div class="form-field"><label>Descripción (opcional)</label><input type="text" id="gasto-desc" placeholder="Detalle..."></div>
+    </div>
+    <div class="form-row cols-2">
+      <div class="form-field"><label>Valor ($)</label><input type="number" id="gasto-valor" placeholder="0"></div>
+      <div class="form-field"><label>Mes</label><input type="month" id="gasto-mes"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-field"><label>Pagado por</label>
+        <select id="gasto-pagado">
+          <option value="Consultorio">Consultorio</option>
+        </select>
+      </div>
+    </div>
+    <div class="btn-row"><button class="btn btn-sage" onclick="saveGasto()">Guardar</button><button class="btn btn-outline" onclick="closeModal('modal-gasto')">Cancelar</button></div>
+  </div>
+</div>
+
+<!-- MODAL SOCIAS -->
+<div class="modal-overlay" id="modal-socias">
+  <div class="modal" style="width:420px">
+    <button class="modal-close" onclick="closeModal('modal-socias')">×</button>
+    <div class="modal-title">Gestión de Socias</div>
+    <div id="socias-list-modal" style="margin-bottom:16px"></div>
+    <div class="form-row cols-2">
+      <div class="form-field"><label>Nueva socia</label><input type="text" id="nueva-socia" placeholder="Nombre..."></div>
+      <div class="form-field" style="align-self:flex-end"><button class="btn btn-sage" onclick="addSocia()">Agregar</button></div>
+    </div>
+  </div>
+</div>
+
 <div class="notif" id="notif"></div>
 <script>
 // Global state declarations
@@ -674,6 +810,7 @@ async function doLogin() {
   if (found.rol==='admin') {
     document.getElementById('nav-admin').style.display='flex';
     document.getElementById('nav-contable').style.display='flex';
+    document.getElementById('nav-gastos').style.display='flex';
   }
   const now = new Date(); calYear=now.getFullYear(); calMonth=now.getMonth();
   const d = now.toLocaleDateString('es-AR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
@@ -692,11 +829,12 @@ function doLogout() {
   document.getElementById('login-error').style.display='none';
   document.getElementById('nav-admin').style.display='none';
   if(document.getElementById('nav-contable')) document.getElementById('nav-contable').style.display='none';
+  if(document.getElementById('nav-gastos')) document.getElementById('nav-gastos').style.display='none';
   document.getElementById('nav-contable').style.display='none';
 }
 
 // ── NAV ──
-const panelTitles={dashboard:'Dashboard',agenda:'Agenda',recordatorios:'Recordatorios',pacientes:'Pacientes',fichas:'Fichas de Evolución',admin:'Administración',midia:'Mi Día',contable:'Contabilidad',sesiones:'Sesiones'};
+const panelTitles={dashboard:'Dashboard',agenda:'Agenda',recordatorios:'Recordatorios',pacientes:'Pacientes',fichas:'Fichas de Evolución',admin:'Administración',midia:'Mi Día',contable:'Contabilidad',sesiones:'Sesiones',gastos:'Gastos Compartidos',cardiopulmonar:'Rehabilitación Cardiopulmonar'};
 async function showPanel(name) {
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
@@ -717,6 +855,8 @@ async function showPanel(name) {
   if(name==='admin') renderUsers();
   if(name==='midia') renderMiDia();
   if(name==='sesiones') { loadSesiones(); populateSesionFiltros(); }
+  if(name==='gastos') loadGastosPanel();
+  if(name==='cardiopulmonar') loadCardiopulmonar();
   if(name==='contable') loadContable();
 }
 
@@ -1715,6 +1855,1239 @@ function seleccionarPaciente(rowIdx, pacId, nombre, dni){
     dniDiv.style.cssText = 'font-size:10px;color:var(--sage);margin-top:2px;font-weight:600';
     dniDiv.textContent = 'ID: ' + (dni || pacId.slice(0,8));
   }
+}
+
+
+// ══ GASTOS COMPARTIDOS ══
+let gastos_data = [];
+let socias_data = [];
+
+async function loadGastosPanel(){
+  socias_data = await dbGet('socias');
+  const mesActual = new Date().toISOString().slice(0,7);
+  // Populate month selector
+  const sel = document.getElementById('gastos-mes-sel');
+  if(sel && !sel.options.length){
+    const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+    const anio = new Date().getFullYear();
+    for(let m=0; m<12; m++){
+      const val = `${anio}-${String(m+1).padStart(2,'0')}`;
+      const opt = document.createElement('option');
+      opt.value = val;
+      opt.textContent = meses[m] + ' ' + anio;
+      if(val === mesActual) opt.selected = true;
+      sel.appendChild(opt);
+    }
+    // Add previous year months
+    for(let m=11; m>=0; m--){
+      const val = `${anio-1}-${String(m+1).padStart(2,'0')}`;
+      const opt = document.createElement('option');
+      opt.value = val;
+      opt.textContent = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'][m] + ' ' + (anio-1);
+      sel.appendChild(opt);
+    }
+  }
+  await loadGastos();
+}
+
+async function loadGastos(){
+  const mes = document.getElementById('gastos-mes-sel')?.value || new Date().toISOString().slice(0,7);
+  showLoading('Cargando gastos...');
+  const { data } = await sb.from('gastos_compartidos').select('*').eq('mes', mes).order('created_at');
+  gastos_data = data || [];
+  hideLoading();
+  renderGastos();
+}
+
+function renderGastos(){
+  const tbody = document.getElementById('gastos-tbody');
+  const tfoot = document.getElementById('gastos-tfoot');
+  if(!tbody) return;
+
+  if(!gastos_data.length){
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-soft);padding:30px">Sin gastos cargados para este mes</td></tr>';
+    document.getElementById('gastos-balance').innerHTML = '';
+    tfoot.innerHTML = '';
+    return;
+  }
+
+  // Render rows
+  tbody.innerHTML = gastos_data.map(g => `
+    <tr>
+      <td><strong>${g.categoria}</strong></td>
+      <td style="color:var(--text-soft)">${g.descripcion||'—'}</td>
+      <td style="font-weight:700">$${(+g.valor).toLocaleString('es-AR')}</td>
+      <td>
+        <span class="badge ${g.pagado_por==='Consultorio'?'badge-blue':'badge-green'}">${g.pagado_por||'—'}</span>
+      </td>
+      <td>
+        <button class="btn btn-danger btn-sm" onclick="deleteGasto('${g.id}')">×</button>
+      </td>
+    </tr>`).join('');
+
+  // Calculate totals
+  const total = gastos_data.reduce((a,b) => a + (+b.valor||0), 0);
+  
+  // Get active socias
+  const socias = socias_data.filter(s=>s.activa).map(s=>s.nombre);
+  const nSocias = socias.length || 3;
+  const valorXCada = total / nSocias;
+
+  // Calculate what each person paid
+  const pagos = {};
+  socias.forEach(s => pagos[s] = 0);
+  pagos['Consultorio'] = 0;
+  gastos_data.forEach(g => {
+    if(g.pagado_por && pagos[g.pagado_por] !== undefined){
+      pagos[g.pagado_por] += +g.valor||0;
+    } else if(g.pagado_por) {
+      pagos[g.pagado_por] = (pagos[g.pagado_por]||0) + (+g.valor||0);
+    }
+  });
+
+  tfoot.innerHTML = `
+    <tr style="background:var(--sage-mist);font-weight:700">
+      <td colspan="2">TOTAL</td>
+      <td>$${total.toLocaleString('es-AR')}</td>
+      <td colspan="2">Valor x persona: $${Math.round(valorXCada).toLocaleString('es-AR')}</td>
+    </tr>`;
+
+  // Balance card
+  const balanceHtml = `
+    <div style="background:var(--sage-mist);border-radius:var(--radius);padding:20px;margin-bottom:16px">
+      <div style="font-weight:700;font-size:15px;color:var(--sage);margin-bottom:14px">📊 Balance del mes</div>
+      <div style="display:grid;grid-template-columns:repeat(${socias.length+1},1fr);gap:12px">
+        ${socias.map(s => {
+          const pago = pagos[s]||0;
+          const diff = pago - valorXCada;
+          const color = diff >= 0 ? '#2ecc71' : '#e74c3c';
+          const label = diff >= 0 ? `Recibe $${Math.abs(Math.round(diff)).toLocaleString('es-AR')}` : `Debe $${Math.abs(Math.round(diff)).toLocaleString('es-AR')}`;
+          return `<div style="background:var(--white);border-radius:var(--radius-sm);padding:14px;text-align:center;border-top:3px solid ${color}">
+            <div style="font-weight:700;font-size:16px">${s}</div>
+            <div style="font-size:13px;color:var(--text-soft);margin:4px 0">Pagó: $${pago.toLocaleString('es-AR')}</div>
+            <div style="font-size:13px;color:var(--text-soft)">Le corresponde: $${Math.round(valorXCada).toLocaleString('es-AR')}</div>
+            <div style="font-weight:700;font-size:14px;color:${color};margin-top:6px">${label}</div>
+          </div>`;
+        }).join('')}
+        <div style="background:var(--white);border-radius:var(--radius-sm);padding:14px;text-align:center;border-top:3px solid var(--bark)">
+          <div style="font-weight:700;font-size:16px">Consultorio</div>
+          <div style="font-size:13px;color:var(--text-soft);margin:4px 0">Pagó: $${(pagos['Consultorio']||0).toLocaleString('es-AR')}</div>
+          <div style="font-size:12px;color:var(--text-soft)">No divide gastos</div>
+        </div>
+      </div>
+    </div>`;
+  document.getElementById('gastos-balance').innerHTML = balanceHtml;
+}
+
+function openGastoModal(id=null){
+  // Populate pagado por
+  const sel = document.getElementById('gasto-pagado');
+  sel.innerHTML = '<option value="Consultorio">Consultorio</option>';
+  socias_data.filter(s=>s.activa).forEach(s => sel.innerHTML += `<option value="${s.nombre}">${s.nombre}</option>`);
+  const mes = document.getElementById('gastos-mes-sel')?.value || new Date().toISOString().slice(0,7);
+  document.getElementById('gasto-mes').value = mes;
+  document.getElementById('gasto-valor').value = '';
+  document.getElementById('gasto-desc').value = '';
+  openModal('modal-gasto');
+}
+
+async function saveGasto(){
+  const valor = parseFloat(document.getElementById('gasto-valor').value);
+  const mes = document.getElementById('gasto-mes').value;
+  if(!mes){ notify('Completá el mes'); return; }
+  showLoading('Guardando...');
+  await dbInsert('gastos_compartidos', {
+    mes,
+    categoria: document.getElementById('gasto-cat').value,
+    descripcion: document.getElementById('gasto-desc').value,
+    valor: valor||0,
+    pagado_por: document.getElementById('gasto-pagado').value,
+    pagado_consultorio: document.getElementById('gasto-pagado').value === 'Consultorio'
+  });
+  await loadGastos();
+  hideLoading();
+  closeModal('modal-gasto');
+  notify('Gasto guardado ✓');
+}
+
+async function deleteGasto(id){
+  if(!confirm('¿Eliminar este gasto?')) return;
+  showLoading('Eliminando...');
+  await dbDelete('gastos_compartidos', id);
+  await loadGastos();
+  hideLoading();
+}
+
+function openSociasModal(){
+  renderSociasList();
+  openModal('modal-socias');
+}
+
+function renderSociasList(){
+  const div = document.getElementById('socias-list-modal');
+  div.innerHTML = socias_data.map(s => `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px;background:var(--sage-mist);border-radius:var(--radius-sm);margin-bottom:8px">
+      <span style="font-weight:600">${s.nombre}</span>
+      <div style="display:flex;gap:6px">
+        <span class="badge ${s.activa?'badge-green':'badge-gray'}">${s.activa?'Activa':'Inactiva'}</span>
+        <button class="btn btn-outline btn-sm" onclick="toggleSocia('${s.id}',${s.activa})">${s.activa?'Desactivar':'Activar'}</button>
+      </div>
+    </div>`).join('');
+}
+
+async function addSocia(){
+  const nombre = document.getElementById('nueva-socia').value.trim();
+  if(!nombre){ notify('Ingresá un nombre'); return; }
+  showLoading('Guardando...');
+  await dbInsert('socias', { nombre, activa: true });
+  socias_data = await dbGet('socias');
+  hideLoading();
+  document.getElementById('nueva-socia').value = '';
+  renderSociasList();
+  notify('Socia agregada ✓');
+}
+
+async function toggleSocia(id, activa){
+  await dbUpdate('socias', id, { activa: !activa });
+  socias_data = await dbGet('socias');
+  renderSociasList();
+  renderGastos();
+}
+
+
+// ══ REHABILITACIÓN CARDIOPULMONAR ══
+let cp_evals = [];
+let currentCPEval = null;
+
+async function loadCardiopulmonar(){
+  cp_evals = await dbGet('eval_cardiopulmonar');
+  const sel = document.getElementById('cp-filtro-pac');
+  sel.innerHTML = '<option value="">Todos los pacientes</option>';
+  pacientes.forEach(p => sel.innerHTML += `<option value="${p.id}">${p.apellido}, ${p.nombre}</option>`);
+  renderCPLista();
+}
+
+function renderCPLista(){
+  const filtro = document.getElementById('cp-filtro-pac')?.value || '';
+  let list = [...cp_evals];
+  if(filtro) list = list.filter(e => e.paciente_id === filtro);
+  list = list.sort((a,b) => b.fecha > a.fecha ? 1 : -1);
+  const div = document.getElementById('cp-lista');
+  if(!list.length){ div.innerHTML='<div class="empty-state"><p>Sin evaluaciones cardiopulmonares</p></div>'; return; }
+  div.innerHTML = list.map(e => {
+    const pac = pacientes.find(p=>p.id===e.paciente_id);
+    return `<div class="sesion-card" onclick="openCPDetalle('${e.id}')">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-weight:600;font-size:15px">${pac?pac.apellido+', '+pac.nombre:'?'}</div>
+          <div style="font-size:13px;color:var(--text-soft);margin-top:2px">${formatDate(e.fecha)} · ${e.tipo==='evaluacion_inicial'?'Evaluación inicial':'Reevaluación'} · ${e.profesional_nombre||''}</div>
+          ${e.notas?`<div style="font-size:12px;color:var(--text-soft)">${e.notas}</div>`:''}
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-sage btn-sm" onclick="event.stopPropagation();openCPDetalle('${e.id}')">Ver fichas</button>
+          <button class="btn btn-danger btn-sm" onclick="event.stopPropagation();deleteCPEval('${e.id}')">×</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openCPEvalModal(){
+  const pac = `<select id="cp-pac" style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;background:var(--bg)"><option value="">Seleccionar paciente...</option>${pacientes.map(p=>`<option value="${p.id}">${p.apellido}, ${p.nombre}</option>`).join('')}</select>`;
+  const prof = `<select id="cp-prof" style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;background:var(--bg)"><option value="">Seleccionar profesional...</option>${usuarios.map(u=>`<option value="${u.id}">${u.nombre}</option>`).join('')}</select>`;
+  const content = `<div style="padding:8px">
+    <div class="form-row cols-2" style="margin-bottom:14px">
+      <div class="form-field"><label style="display:block;font-size:12px;font-weight:600;color:var(--text-soft);text-transform:uppercase;margin-bottom:5px">Paciente</label>${pac}</div>
+      <div class="form-field"><label style="display:block;font-size:12px;font-weight:600;color:var(--text-soft);text-transform:uppercase;margin-bottom:5px">Profesional</label>${prof}</div>
+    </div>
+    <div class="form-row cols-2" style="margin-bottom:14px">
+      <div class="form-field"><label style="display:block;font-size:12px;font-weight:600;color:var(--text-soft);text-transform:uppercase;margin-bottom:5px">Fecha</label><input type="date" id="cp-fecha" value="${new Date().toISOString().slice(0,10)}" style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;background:var(--bg)"></div>
+      <div class="form-field"><label style="display:block;font-size:12px;font-weight:600;color:var(--text-soft);text-transform:uppercase;margin-bottom:5px">Tipo</label><select id="cp-tipo" style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;background:var(--bg)"><option value="evaluacion_inicial">Evaluación inicial</option><option value="reevaluacion">Reevaluación</option></select></div>
+    </div>
+    <div class="form-field" style="margin-bottom:14px"><label style="display:block;font-size:12px;font-weight:600;color:var(--text-soft);text-transform:uppercase;margin-bottom:5px">Notas</label><textarea id="cp-notas" style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;background:var(--bg);resize:vertical;min-height:60px" placeholder="Observaciones..."></textarea></div>
+    <button class="btn btn-sage" onclick="saveCPEval()">Crear evaluación</button>
+  </div>`;
+  
+  // Use a simple confirm-style approach with inline form
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay open';
+  overlay.id = 'modal-cp-eval';
+  overlay.innerHTML = `<div class="modal" style="width:600px"><button class="modal-close" onclick="document.getElementById('modal-cp-eval').remove()">×</button><div class="modal-title">Nueva Evaluación Cardiopulmonar</div>${content}</div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', e => { if(e.target===overlay) overlay.remove(); });
+}
+
+async function saveCPEval(){
+  const pacId = document.getElementById('cp-pac').value;
+  const profId = document.getElementById('cp-prof').value;
+  const fecha = document.getElementById('cp-fecha').value;
+  if(!pacId||!fecha){ notify('Completá paciente y fecha'); return; }
+  const prof = usuarios.find(u=>u.id===profId);
+  showLoading('Creando evaluación...');
+  const nueva = await dbInsert('eval_cardiopulmonar',{ paciente_id:pacId, profesional_id:profId||null, profesional_nombre:prof?prof.nombre:'', fecha, tipo:document.getElementById('cp-tipo').value, notas:document.getElementById('cp-notas').value });
+  cp_evals = await dbGet('eval_cardiopulmonar');
+  hideLoading();
+  document.getElementById('modal-cp-eval')?.remove();
+  renderCPLista();
+  if(nueva) openCPDetalle(nueva.id);
+  notify('Evaluación creada ✓');
+}
+
+async function deleteCPEval(id){
+  if(!confirm('¿Eliminar esta evaluación y todos sus datos?')) return;
+  showLoading('Eliminando...');
+  // Delete all related tables
+  const tables = ['eval_cat','eval_sf36','eval_euroqol','eval_sgrq','eval_6mwt','eval_sts','eval_tug','eval_barthel','eval_dinamometria','eval_fuerza','eval_signos','eval_espirometria','eval_ergometria','eval_test_incremental','eval_carga_constante'];
+  for(const t of tables){ await sb.from(t).delete().eq('eval_id',id); }
+  await dbDelete('eval_cardiopulmonar',id);
+  cp_evals = await dbGet('eval_cardiopulmonar');
+  hideLoading();
+  renderCPLista();
+  notify('Evaluación eliminada');
+}
+
+function openCPDetalle(evalId){
+  currentCPEval = cp_evals.find(e=>e.id===evalId);
+  if(!currentCPEval) return;
+  const pac = pacientes.find(p=>p.id===currentCPEval.paciente_id);
+  document.getElementById('cp-detalle-title').textContent = `${pac?pac.apellido+', '+pac.nombre:'?'} — ${formatDate(currentCPEval.fecha)} — ${currentCPEval.tipo==='evaluacion_inicial'?'Evaluación inicial':'Reevaluación'}`;
+  document.getElementById('cp-lista-view').style.display='none';
+  document.getElementById('cp-detalle-view').style.display='block';
+  showCPTab('signos');
+}
+
+function closeCPDetalle(){
+  document.getElementById('cp-lista-view').style.display='block';
+  document.getElementById('cp-detalle-view').style.display='none';
+  currentCPEval = null;
+}
+
+function showCPTab(tab){
+  // Update button styles
+  document.querySelectorAll('#cp-tabs button').forEach(b=>{
+    b.className = b.getAttribute('onclick').includes(tab) ? 'btn btn-sage btn-sm' : 'btn btn-outline btn-sm';
+  });
+  const div = document.getElementById('cp-tab-content');
+  const templates = {
+    signos: cpTabSignos,
+    cat: cpTabCAT,
+    sf36: cpTabSF36,
+    euroqol: cpTabEuroQoL,
+    sgrq: cpTabSGRQ,
+    '6mwt': cpTab6MWT,
+    sts: cpTabSTS,
+    tug: cpTabTUG,
+    barthel: cpTabBarthel,
+    dinamometria: cpTabDinamometria,
+    fuerza: cpTabFuerza,
+    espirometria: cpTabEspirometria,
+    ergometria: cpTabErgometria,
+    incremental: cpTabIncremental,
+    cargaconstante: cpTabCargaConstante,
+    plan_aerobico: cpTabPlanAerobico,
+    plan_fuerza: cpTabPlanFuerza,
+  };
+  if(templates[tab]) div.innerHTML = templates[tab]();
+  else div.innerHTML = '<div class="empty-state"><p>En desarrollo</p></div>';
+}
+
+// ── HELPERS ──
+function cpField(id, label, type='number', placeholder='', extra=''){
+  return `<div class="form-field"><label>${label}</label><input type="${type}" id="cp-${id}" placeholder="${placeholder}" ${extra} style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;background:var(--bg)"></div>`;
+}
+function cpSel(id, label, options){
+  return `<div class="form-field"><label>${label}</label><select id="cp-${id}" style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;background:var(--bg)">${options.map(o=>`<option value="${o.v||o}">${o.l||o}</option>`).join('')}</select></div>`;
+}
+function cpTA(id, label){
+  return `<div class="form-field"><label>${label}</label><div style="display:flex;align-items:center;gap:6px"><input type="number" id="cp-${id}-s" placeholder="Sist" style="width:70px;padding:8px;border:1.5px solid var(--border);border-radius:6px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none"><span>/</span><input type="number" id="cp-${id}-d" placeholder="Diast" style="width:70px;padding:8px;border:1.5px solid var(--border);border-radius:6px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none"></div></div>`;
+}
+function cpSaveBtn(fn){ return `<div class="btn-row" style="margin-top:16px"><button class="btn btn-sage" onclick="${fn}()">💾 Guardar</button></div>`; }
+function cpResultBox(id){ return `<div id="cp-result-${id}" style="background:var(--sage-mist);border-radius:var(--radius-sm);padding:16px;margin-top:16px;display:none"></div>`; }
+function getV(id){ const el=document.getElementById('cp-'+id); return el?parseFloat(el.value)||null:null; }
+function getSV(id){ const el=document.getElementById('cp-'+id); return el?el.value||'':'' ; }
+
+// ══ TAB: SIGNOS VITALES ══
+function cpTabSignos(){
+  return `<div class="card">
+    <div class="card-title">💓 Signos Vitales y Escala de Borg</div>
+    <div class="form-section-title">Saturación y Frecuencia Cardíaca</div>
+    <div class="form-row cols-3">
+      ${cpField('signos-spo2','SpO2 (%)',  'number','98')}
+      ${cpField('signos-fc','FC (lpm)','number','75')}
+      ${cpField('signos-borg-rep','Borg reposo','number','0')}
+    </div>
+    <div class="form-section-title">Tensión Arterial — 3 tomas (mmHg)</div>
+    <div class="form-row cols-3">
+      ${cpTA('signos-ta1','Toma 1')}
+      ${cpTA('signos-ta2','Toma 2')}
+      ${cpTA('signos-ta3','Toma 3')}
+    </div>
+    <div class="form-row cols-2">
+      ${cpField('signos-borg-esf','Borg esfuerzo','number','0')}
+      ${cpField('signos-obs','Observaciones','text','')}
+    </div>
+    <button class="btn btn-outline btn-sm" onclick="calcSignos()" style="margin-top:8px">Calcular promedio TA</button>
+    ${cpResultBox('signos')}
+    ${cpSaveBtn('saveSignos')}
+  </div>`;
+}
+
+function calcSignos(){
+  const vals = [[getV('signos-ta1-s'),getV('signos-ta1-d')],[getV('signos-ta2-s'),getV('signos-ta2-d')],[getV('signos-ta3-s'),getV('signos-ta3-d')]].filter(v=>v[0]);
+  if(!vals.length) return;
+  const avgS = Math.round(vals.reduce((a,b)=>a+b[0],0)/vals.length);
+  const avgD = Math.round(vals.reduce((a,b)=>a+b[1],0)/vals.length);
+  let cat=''; if(avgS<120&&avgD<80) cat='Normal'; else if(avgS<130) cat='Elevada'; else if(avgS<140||avgD<90) cat='HTA Estadio 1'; else cat='HTA Estadio 2';
+  const res = document.getElementById('cp-result-signos');
+  res.style.display='block';
+  res.innerHTML = `<strong>Promedio TA:</strong> ${avgS}/${avgD} mmHg — <strong>${cat}</strong>`;
+}
+
+async function saveSignos(){
+  if(!currentCPEval) return;
+  showLoading('Guardando...');
+  const ta1s=getV('signos-ta1-s'), ta1d=getV('signos-ta1-d'), ta2s=getV('signos-ta2-s'), ta2d=getV('signos-ta2-d'), ta3s=getV('signos-ta3-s'), ta3d=getV('signos-ta3-d');
+  const vals = [[ta1s,ta1d],[ta2s,ta2d],[ta3s,ta3d]].filter(v=>v[0]);
+  const avgS = vals.length ? Math.round(vals.reduce((a,b)=>a+b[0],0)/vals.length) : null;
+  const avgD = vals.length ? Math.round(vals.reduce((a,b)=>a+b[1],0)/vals.length) : null;
+  await dbInsert('eval_signos',{ eval_id:currentCPEval.id, paciente_id:currentCPEval.paciente_id, fecha:currentCPEval.fecha, spo2:getV('signos-spo2'), fc:getV('signos-fc'), ta1_s:ta1s, ta1_d:ta1d, ta2_s:ta2s, ta2_d:ta2d, ta3_s:ta3s, ta3_d:ta3d, ta_prom_s:avgS, ta_prom_d:avgD, borg_reposo:getV('signos-borg-rep'), borg_esfuerzo:getV('signos-borg-esf'), observaciones:getSV('signos-obs') });
+  hideLoading(); notify('Signos vitales guardados ✓');
+}
+
+// ══ TAB: CAT ══
+const CAT_PREGUNTAS = [
+  'Nunca toso / Siempre estoy tosiendo',
+  'No tengo flemas / Tengo los pulmones completamente llenos de flemas',
+  'No siento opresión en el pecho / Siento mucha opresión en el pecho',
+  'No me falta el aliento al subir una cuesta o un tramo de escaleras / Me falta mucho el aliento al subir una cuesta o un tramo de escaleras',
+  'No tengo limitaciones para hacer actividades en casa / Tengo muchas limitaciones para hacer actividades en casa',
+  'Me siento tranquilo salir de casa a pesar de mi enfermedad pulmonar / No me siento tranquilo saliendo de casa a causa de mi enfermedad pulmonar',
+  'Duermo bien / No duermo bien a causa de mi enfermedad pulmonar',
+  'Tengo mucha energía / No tengo nada de energía'
+];
+
+function cpTabCAT(){
+  return `<div class="card">
+    <div class="card-title">📋 COPD Assessment Test (CAT)</div>
+    <p style="font-size:13px;color:var(--text-soft);margin-bottom:16px">Puntaje de 0 (mejor) a 5 (peor) para cada ítem</p>
+    ${CAT_PREGUNTAS.map((q,i) => {
+      const [izq,der] = q.split('/');
+      return `<div style="margin-bottom:14px;padding:12px;background:var(--sage-mist);border-radius:var(--radius-sm)">
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-soft);margin-bottom:8px">
+          <span>${izq.trim()}</span><span>${der.trim()}</span>
+        </div>
+        <div style="display:flex;gap:8px;justify-content:center">
+          ${[0,1,2,3,4,5].map(v=>`<label style="display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer"><input type="radio" name="cat-${i}" value="${v}" style="cursor:pointer"><span style="font-size:13px;font-weight:600">${v}</span></label>`).join('')}
+        </div>
+      </div>`;
+    }).join('')}
+    <button class="btn btn-outline btn-sm" onclick="calcCAT()" style="margin-top:8px">Calcular puntaje</button>
+    ${cpResultBox('cat')}
+    ${cpSaveBtn('saveCAT')}
+  </div>`;
+}
+
+function calcCAT(){
+  let total = 0; let completo = true;
+  for(let i=0;i<8;i++){
+    const sel = document.querySelector(`input[name="cat-${i}"]:checked`);
+    if(!sel){ completo=false; break; }
+    total += parseInt(sel.value);
+  }
+  if(!completo){ notify('Completá todos los ítems'); return; }
+  let interp=''; let color='';
+  if(total<=10){ interp='Impacto leve'; color='#2ecc71'; }
+  else if(total<=20){ interp='Impacto moderado'; color='#f39c12'; }
+  else if(total<=30){ interp='Impacto grave'; color='#e67e22'; }
+  else { interp='Impacto muy grave'; color='#e74c3c'; }
+  const res = document.getElementById('cp-result-cat');
+  res.style.display='block';
+  res.innerHTML = `<div style="text-align:center"><div style="font-size:48px;font-family:'Cormorant Garamond',serif;font-weight:600;color:${color}">${total}</div><div style="font-size:16px;color:${color};font-weight:700">${interp}</div><div style="font-size:12px;color:var(--text-soft);margin-top:4px">0-10: Leve · 11-20: Moderado · 21-30: Grave · >30: Muy grave</div></div>`;
+}
+
+async function saveCAT(){
+  if(!currentCPEval) return;
+  let vals=[]; let total=0; let completo=true;
+  for(let i=0;i<8;i++){
+    const sel=document.querySelector(`input[name="cat-${i}"]:checked`);
+    if(!sel){ completo=false; break; }
+    vals.push(parseInt(sel.value));
+    total+=parseInt(sel.value);
+  }
+  if(!completo){ notify('Completá todos los ítems'); return; }
+  let interp='';
+  if(total<=10) interp='Impacto leve'; else if(total<=20) interp='Impacto moderado'; else if(total<=30) interp='Impacto grave'; else interp='Impacto muy grave';
+  showLoading('Guardando...');
+  await dbInsert('eval_cat',{ eval_id:currentCPEval.id, paciente_id:currentCPEval.paciente_id, fecha:currentCPEval.fecha, p1:vals[0],p2:vals[1],p3:vals[2],p4:vals[3],p5:vals[4],p6:vals[5],p7:vals[6],p8:vals[7], total, interpretacion:interp });
+  hideLoading(); notify('CAT guardado ✓ — Puntaje: '+total+' ('+interp+')');
+}
+
+// ══ TAB: SF-36 (simplificado) ══
+function cpTabSF36(){
+  return `<div class="card">
+    <div class="card-title">📋 SF-36 — Calidad de Vida</div>
+    <p style="font-size:13px;color:var(--text-soft);margin-bottom:16px">Ingresá los puntajes ya calculados (0-100) para cada dimensión</p>
+    <div class="form-row cols-4">
+      ${cpField('sf-ff','Función física (0-100)','number','0')}
+      ${cpField('sf-rf','Rol físico (0-100)','number','0')}
+      ${cpField('sf-dc','Dolor corporal (0-100)','number','0')}
+      ${cpField('sf-sg','Salud general (0-100)','number','0')}
+    </div>
+    <div class="form-row cols-4">
+      ${cpField('sf-vt','Vitalidad (0-100)','number','0')}
+      ${cpField('sf-fs','Función social (0-100)','number','0')}
+      ${cpField('sf-re','Rol emocional (0-100)','number','0')}
+      ${cpField('sf-sm','Salud mental (0-100)','number','0')}
+    </div>
+    <div class="form-row cols-2">
+      ${cpField('sf-pcs','PCS (Componente Físico)','number','')}
+      ${cpField('sf-mcs','MCS (Componente Mental)','number','')}
+    </div>
+    ${cpSaveBtn('saveSF36')}
+  </div>`;
+}
+
+async function saveSF36(){
+  if(!currentCPEval) return;
+  showLoading('Guardando...');
+  await dbInsert('eval_sf36',{ eval_id:currentCPEval.id, paciente_id:currentCPEval.paciente_id, fecha:currentCPEval.fecha, funcion_fisica:getV('sf-ff'), rol_fisico:getV('sf-rf'), dolor_corporal:getV('sf-dc'), salud_general:getV('sf-sg'), vitalidad:getV('sf-vt'), funcion_social:getV('sf-fs'), rol_emocional:getV('sf-re'), salud_mental:getV('sf-sm'), pcs:getV('sf-pcs'), mcs:getV('sf-mcs') });
+  hideLoading(); notify('SF-36 guardado ✓');
+}
+
+// ══ TAB: EuroQoL ══
+function cpTabEuroQoL(){
+  return `<div class="card">
+    <div class="card-title">📋 EuroQoL EQ-5D</div>
+    <div class="form-row cols-3">
+      ${cpSel('eq-mov','Movilidad',[{v:1,l:'1 - Sin problemas'},{v:2,l:'2 - Problemas leves'},{v:3,l:'3 - Problemas moderados'},{v:4,l:'4 - Problemas graves'},{v:5,l:'5 - Sin poder caminar'}])}
+      ${cpSel('eq-auto','Autocuidado',[{v:1,l:'1 - Sin problemas'},{v:2,l:'2 - Problemas leves'},{v:3,l:'3 - Problemas moderados'},{v:4,l:'4 - Problemas graves'},{v:5,l:'5 - Sin poder lavarse/vestirse'}])}
+      ${cpSel('eq-act','Actividades habituales',[{v:1,l:'1 - Sin problemas'},{v:2,l:'2 - Problemas leves'},{v:3,l:'3 - Problemas moderados'},{v:4,l:'4 - Problemas graves'},{v:5,l:'5 - Sin poder realizarlas'}])}
+    </div>
+    <div class="form-row cols-3">
+      ${cpSel('eq-dolor','Dolor/Malestar',[{v:1,l:'1 - Sin dolor'},{v:2,l:'2 - Dolor leve'},{v:3,l:'3 - Dolor moderado'},{v:4,l:'4 - Dolor grave'},{v:5,l:'5 - Dolor extremo'}])}
+      ${cpSel('eq-anx','Ansiedad/Depresión',[{v:1,l:'1 - Sin ansiedad'},{v:2,l:'2 - Levemente ansioso'},{v:3,l:'3 - Moderadamente ansioso'},{v:4,l:'4 - Muy ansioso'},{v:5,l:'5 - Extremadamente ansioso'}])}
+      ${cpField('eq-eva','EVA (0-100)','number','50')}
+    </div>
+    ${cpField('eq-indice','Índice EQ-5D (calculado externamente)','number','')}
+    ${cpSaveBtn('saveEuroQoL')}
+  </div>`;
+}
+
+async function saveEuroQoL(){
+  if(!currentCPEval) return;
+  showLoading('Guardando...');
+  await dbInsert('eval_euroqol',{ eval_id:currentCPEval.id, paciente_id:currentCPEval.paciente_id, fecha:currentCPEval.fecha, movilidad:getV('eq-mov'), autocuidado:getV('eq-auto'), actividades_habituales:getV('eq-act'), dolor_malestar:getV('eq-dolor'), ansiedad_depresion:getV('eq-anx'), eva:getV('eq-eva'), eq5d_indice:getV('eq-indice') });
+  hideLoading(); notify('EuroQoL guardado ✓');
+}
+
+// ══ TAB: Saint George ══
+function cpTabSGRQ(){
+  return `<div class="card">
+    <div class="card-title">📋 Saint George Respiratory Questionnaire (SGRQ)</div>
+    <p style="font-size:13px;color:var(--text-soft);margin-bottom:16px">Ingresá los puntajes ya calculados (0-100). Menor puntaje = mejor calidad de vida.</p>
+    <div class="form-row cols-2">
+      ${cpField('sg-sint','Síntomas (0-100)','number','')}
+      ${cpField('sg-act','Actividad (0-100)','number','')}
+    </div>
+    <div class="form-row cols-2">
+      ${cpField('sg-imp','Impacto (0-100)','number','')}
+      ${cpField('sg-total','Total (0-100)','number','')}
+    </div>
+    <div id="cp-result-sgrq" style="display:none;background:var(--sage-mist);border-radius:var(--radius-sm);padding:14px;margin-top:12px"></div>
+    <button class="btn btn-outline btn-sm" onclick="calcSGRQ()" style="margin-top:8px">Interpretar</button>
+    ${cpSaveBtn('saveSGRQ')}
+  </div>`;
+}
+
+function calcSGRQ(){
+  const total = getV('sg-total');
+  if(!total) return;
+  const res = document.getElementById('cp-result-sgrq');
+  res.style.display='block';
+  const interp = total<25?'Leve afectación':total<50?'Moderada afectación':total<75?'Grave afectación':'Muy grave afectación';
+  res.innerHTML = `<strong>Total SGRQ: ${total}</strong> — ${interp}<br><span style="font-size:12px;color:var(--text-soft)">MCID (diferencia mínima clínicamente importante): 4 puntos</span>`;
+}
+
+async function saveSGRQ(){
+  if(!currentCPEval) return;
+  showLoading('Guardando...');
+  await dbInsert('eval_sgrq',{ eval_id:currentCPEval.id, paciente_id:currentCPEval.paciente_id, fecha:currentCPEval.fecha, sintomas_score:getV('sg-sint'), actividad_score:getV('sg-act'), impacto_score:getV('sg-imp'), total_score:getV('sg-total') });
+  hideLoading(); notify('SGRQ guardado ✓');
+}
+
+// ══ TAB: 6MWT ══
+function cpTab6MWT(){
+  return `<div class="card">
+    <div class="card-title">🚶 Test de Marcha de 6 Minutos (6MWT)</div>
+    <div class="form-section-title">Datos del paciente</div>
+    <div class="form-row cols-4">
+      ${cpField('6mwt-peso','Peso (kg)','number','')}
+      ${cpField('6mwt-talla','Talla (cm)','number','')}
+      ${cpField('6mwt-edad','Edad (años)','number','')}
+      ${cpSel('6mwt-sexo','Sexo',[{v:'M',l:'Masculino'},{v:'F',l:'Femenino'}])}
+    </div>
+    <div class="form-section-title">Valores basales (reposo)</div>
+    <div class="form-row cols-4">
+      ${cpField('6mwt-spo2b','SpO2 basal (%)','number','')}
+      ${cpField('6mwt-fcb','FC basal (lpm)','number','')}
+      ${cpTA('6mwt-tab','TA basal')}
+      ${cpField('6mwt-borgb','Borg basal','number','0')}
+    </div>
+    <div class="form-section-title">Durante la prueba</div>
+    <div class="form-row cols-3" style="background:var(--sage-mist);padding:12px;border-radius:8px;margin-bottom:12px">
+      <div><div style="font-size:12px;font-weight:700;color:var(--sage);margin-bottom:8px">Minuto 2</div>
+        ${cpField('6mwt-spo2-2','SpO2 (%)','number','')}
+        ${cpField('6mwt-fc-2','FC (lpm)','number','')}
+        ${cpField('6mwt-borg-2','Borg','number','')}
+      </div>
+      <div><div style="font-size:12px;font-weight:700;color:var(--sage);margin-bottom:8px">Minuto 4</div>
+        ${cpField('6mwt-spo2-4','SpO2 (%)','number','')}
+        ${cpField('6mwt-fc-4','FC (lpm)','number','')}
+        ${cpField('6mwt-borg-4','Borg','number','')}
+      </div>
+      <div><div style="font-size:12px;font-weight:700;color:var(--bark);margin-bottom:8px">Minuto 6 (final)</div>
+        ${cpField('6mwt-spo2f','SpO2 final (%)','number','')}
+        ${cpField('6mwt-fcf','FC final (lpm)','number','')}
+        ${cpTA('6mwt-taf','TA final')}
+        ${cpField('6mwt-borgf','Borg final','number','')}
+      </div>
+    </div>
+    <div class="form-section-title">Recuperación (1 minuto post)</div>
+    <div class="form-row cols-3">
+      ${cpField('6mwt-spo2r','SpO2 rec (%)','number','')}
+      ${cpField('6mwt-fcr','FC rec (lpm)','number','')}
+    </div>
+    <div class="form-section-title">Resultado</div>
+    <div class="form-row cols-4">
+      ${cpField('6mwt-vueltas','Número de vueltas','number','')}
+      ${cpField('6mwt-metros-ult','Metros última vuelta','number','')}
+      ${cpField('6mwt-distancia','Distancia total (m)','number','')}
+      ${cpSel('6mwt-motivo','Motivo detención',[{v:'completo',l:'Prueba completa'},{v:'disnea',l:'Disnea'},{v:'fatiga',l:'Fatiga muscular'},{v:'spo2',l:'Desaturación'},{v:'fc',l:'FC elevada'},{v:'otro',l:'Otro'}])}
+    </div>
+    <button class="btn btn-outline btn-sm" onclick="calc6MWT()" style="margin-top:8px">Calcular distancia teórica</button>
+    ${cpResultBox('6mwt')}
+    ${cpSaveBtn('save6MWT')}
+  </div>`;
+}
+
+function calc6MWT(){
+  const peso=getV('6mwt-peso'), talla=getV('6mwt-talla'), edad=getV('6mwt-edad');
+  const sexo=getSV('6mwt-sexo');
+  const dist=getV('6mwt-distancia');
+  if(!talla||!edad) return;
+  // Enright & Sherrill formula
+  let teorica;
+  if(sexo==='M') teorica = (7.57*talla) - (5.02*edad) - (1.76*peso) - 309;
+  else teorica = (2.11*talla) - (2.29*peso) - (5.78*edad) + 667;
+  teorica = Math.round(teorica);
+  const pct = dist ? Math.round((dist/teorica)*100) : null;
+  const res = document.getElementById('cp-result-6mwt');
+  res.style.display='block';
+  res.innerHTML = `<div style="display:flex;gap:24px;flex-wrap:wrap">
+    <div><div style="font-size:32px;font-family:'Cormorant Garamond',serif;font-weight:600;color:var(--sage)">${teorica}m</div><div style="font-size:12px;color:var(--text-soft)">Distancia teórica (Enright)</div></div>
+    ${dist?`<div><div style="font-size:32px;font-family:'Cormorant Garamond',serif;font-weight:600;color:${pct>=70?'#2ecc71':'#e74c3c'}">${pct}%</div><div style="font-size:12px;color:var(--text-soft)">del teórico (≥70% normal)</div></div>`:''}
+    ${dist?`<div><div style="font-size:32px;font-family:'Cormorant Garamond',serif;font-weight:600;color:var(--bark)">${dist}m</div><div style="font-size:12px;color:var(--text-soft)">Distancia recorrida</div></div>`:''}
+  </div>`;
+  if(dist) document.getElementById('cp-6mwt-distancia') && (document.getElementById('cp-6mwt-distancia').value = dist);
+}
+
+async function save6MWT(){
+  if(!currentCPEval) return;
+  const peso=getV('6mwt-peso'), talla=getV('6mwt-talla'), edad=getV('6mwt-edad'), sexo=getSV('6mwt-sexo'), dist=getV('6mwt-distancia');
+  let teorica=null, pct=null;
+  if(talla&&edad){ teorica=sexo==='M'?(7.57*talla)-(5.02*edad)-(1.76*(peso||0))-309:(2.11*talla)-(2.29*(peso||0))-(5.78*edad)+667; teorica=Math.round(teorica); pct=dist?Math.round((dist/teorica)*100):null; }
+  showLoading('Guardando...');
+  await dbInsert('eval_6mwt',{ eval_id:currentCPEval.id, paciente_id:currentCPEval.paciente_id, fecha:currentCPEval.fecha, peso, talla, spo2_basal:getV('6mwt-spo2b'), fc_basal:getV('6mwt-fcb'), ta_s_basal:getV('6mwt-tab-s'), ta_d_basal:getV('6mwt-tab-d'), borg_basal:getV('6mwt-borgb'), spo2_2min:getV('6mwt-spo2-2'), fc_2min:getV('6mwt-fc-2'), borg_2min:getV('6mwt-borg-2'), spo2_4min:getV('6mwt-spo2-4'), fc_4min:getV('6mwt-fc-4'), borg_4min:getV('6mwt-borg-4'), spo2_final:getV('6mwt-spo2f'), fc_final:getV('6mwt-fcf'), ta_s_final:getV('6mwt-taf-s'), ta_d_final:getV('6mwt-taf-d'), borg_final:getV('6mwt-borgf'), spo2_rec:getV('6mwt-spo2r'), fc_rec:getV('6mwt-fcr'), distancia_total:dist, distancia_teorica:teorica, porcentaje_teorico:pct, vueltas:getV('6mwt-vueltas'), metros_ultima_vuelta:getV('6mwt-metros-ult'), motivo_detencion:getSV('6mwt-motivo') });
+  hideLoading(); notify('6MWT guardado ✓');
+}
+
+// ══ TAB: STS ══
+function cpTabSTS(){
+  return `<div class="card">
+    <div class="card-title">🪑 Sit to Stand</div>
+    <div class="form-row cols-2">
+      ${cpSel('sts-tipo','Tipo de prueba',[{v:'1min',l:'1 Minuto'},{v:'30seg',l:'30 Segundos'}])}
+      ${cpField('sts-reps','Repeticiones','number','')}
+    </div>
+    <div class="form-section-title">Signos vitales</div>
+    <div class="form-row cols-3">
+      ${cpField('sts-spo2b','SpO2 basal (%)','number','')}
+      ${cpField('sts-fcb','FC basal (lpm)','number','')}
+      ${cpField('sts-borgb','Borg basal','number','0')}
+    </div>
+    <div class="form-row cols-3">
+      ${cpField('sts-spo2f','SpO2 final (%)','number','')}
+      ${cpField('sts-fcf','FC final (lpm)','number','')}
+      ${cpField('sts-borgf','Borg final','number','')}
+    </div>
+    <div class="form-row cols-2">
+      ${cpField('sts-teorico','Valor teórico (reps)','number','')}
+      ${cpField('sts-pct','% del teórico','number','')}
+    </div>
+    ${cpField('sts-obs','Observaciones','text','')}
+    ${cpSaveBtn('saveSTS')}
+  </div>`;
+}
+
+async function saveSTS(){
+  if(!currentCPEval) return;
+  showLoading('Guardando...');
+  await dbInsert('eval_sts',{ eval_id:currentCPEval.id, paciente_id:currentCPEval.paciente_id, fecha:currentCPEval.fecha, tipo:getSV('sts-tipo'), repeticiones:getV('sts-reps'), spo2_basal:getV('sts-spo2b'), fc_basal:getV('sts-fcb'), borg_basal:getV('sts-borgb'), spo2_final:getV('sts-spo2f'), fc_final:getV('sts-fcf'), borg_final:getV('sts-borgf'), valor_teorico:getV('sts-teorico'), porcentaje_teorico:getV('sts-pct'), observaciones:getSV('sts-obs') });
+  hideLoading(); notify('STS guardado ✓');
+}
+
+// ══ TAB: TUG ══
+function cpTabTUG(){
+  return `<div class="card">
+    <div class="card-title">⏱ Time Up and Go (TUG)</div>
+    <div class="form-row cols-3">
+      ${cpField('tug-i1','Intento 1 (seg)','number','')}
+      ${cpField('tug-i2','Intento 2 (seg)','number','')}
+      ${cpField('tug-i3','Intento 3 (seg)','number','')}
+    </div>
+    <button class="btn btn-outline btn-sm" onclick="calcTUG()" style="margin-top:8px">Calcular mejor tiempo</button>
+    ${cpResultBox('tug')}
+    ${cpField('tug-obs','Observaciones','text','')}
+    ${cpSaveBtn('saveTUG')}
+  </div>`;
+}
+
+function calcTUG(){
+  const vals=[getV('tug-i1'),getV('tug-i2'),getV('tug-i3')].filter(v=>v);
+  if(!vals.length) return;
+  const mejor=Math.min(...vals);
+  let interp=''; let color='';
+  if(mejor<=10){interp='Normal (<10 seg)';color='#2ecc71';}
+  else if(mejor<=20){interp='Riesgo moderado de caída (10-20 seg)';color='#f39c12';}
+  else{interp='Alto riesgo de caída (>20 seg)';color='#e74c3c';}
+  const res=document.getElementById('cp-result-tug');
+  res.style.display='block';
+  res.innerHTML=`<div style="display:flex;gap:24px;flex-wrap:wrap"><div><div style="font-size:32px;font-family:'Cormorant Garamond',serif;font-weight:600;color:${color}">${mejor}s</div><div style="font-size:12px;color:var(--text-soft)">Mejor tiempo</div></div><div style="align-self:center;font-size:15px;color:${color};font-weight:600">${interp}</div></div>`;
+}
+
+async function saveTUG(){
+  if(!currentCPEval) return;
+  const vals=[getV('tug-i1'),getV('tug-i2'),getV('tug-i3')].filter(v=>v);
+  const mejor=vals.length?Math.min(...vals):null;
+  let interp='';
+  if(mejor&&mejor<=10) interp='Normal'; else if(mejor&&mejor<=20) interp='Riesgo moderado'; else if(mejor) interp='Alto riesgo de caída';
+  showLoading('Guardando...');
+  await dbInsert('eval_tug',{ eval_id:currentCPEval.id, paciente_id:currentCPEval.paciente_id, fecha:currentCPEval.fecha, intento1:getV('tug-i1'), intento2:getV('tug-i2'), intento3:getV('tug-i3'), tiempo_seg:mejor, interpretacion:interp, observaciones:getSV('tug-obs') });
+  hideLoading(); notify('TUG guardado ✓');
+}
+
+// ══ TAB: BARTHEL ══
+const BARTHEL_ITEMS = [
+  {id:'alimentacion',label:'Alimentación',opts:[{v:10,l:'Independiente'},{v:5,l:'Ayuda'},{v:0,l:'Dependiente'}]},
+  {id:'bano',label:'Baño/Ducha',opts:[{v:5,l:'Independiente'},{v:0,l:'Dependiente'}]},
+  {id:'vestido',label:'Vestido',opts:[{v:10,l:'Independiente'},{v:5,l:'Ayuda parcial'},{v:0,l:'Dependiente'}]},
+  {id:'arreglo',label:'Arreglo personal',opts:[{v:5,l:'Independiente'},{v:0,l:'Dependiente'}]},
+  {id:'deposiciones',label:'Deposiciones',opts:[{v:10,l:'Continente'},{v:5,l:'Accidente ocasional'},{v:0,l:'Incontinente'}]},
+  {id:'miccion',label:'Micción',opts:[{v:10,l:'Continente'},{v:5,l:'Accidente ocasional'},{v:0,l:'Incontinente'}]},
+  {id:'retrete',label:'Uso del retrete',opts:[{v:10,l:'Independiente'},{v:5,l:'Ayuda'},{v:0,l:'Dependiente'}]},
+  {id:'traslado',label:'Traslado silla-cama',opts:[{v:15,l:'Independiente'},{v:10,l:'Ayuda mínima'},{v:5,l:'Gran ayuda'},{v:0,l:'Dependiente'}]},
+  {id:'deambulacion',label:'Deambulación',opts:[{v:15,l:'Independiente'},{v:10,l:'Con ayuda técnica'},{v:5,l:'En silla de ruedas'},{v:0,l:'Dependiente'}]},
+  {id:'escaleras',label:'Escaleras',opts:[{v:10,l:'Independiente'},{v:5,l:'Con ayuda'},{v:0,l:'Dependiente'}]},
+];
+
+function cpTabBarthel(){
+  return `<div class="card">
+    <div class="card-title">📊 Índice de Barthel</div>
+    ${BARTHEL_ITEMS.map(item=>`<div style="margin-bottom:10px;padding:10px;background:var(--sage-mist);border-radius:var(--radius-sm)">
+      <div style="font-weight:600;font-size:13px;margin-bottom:6px">${item.label}</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        ${item.opts.map(o=>`<label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:13px"><input type="radio" name="barthel-${item.id}" value="${o.v}"> ${o.l} (${o.v})</label>`).join('')}
+      </div>
+    </div>`).join('')}
+    <button class="btn btn-outline btn-sm" onclick="calcBarthel()" style="margin-top:8px">Calcular puntaje</button>
+    ${cpResultBox('barthel')}
+    ${cpSaveBtn('saveBarthel')}
+  </div>`;
+}
+
+function calcBarthel(){
+  let total=0; let completo=true;
+  BARTHEL_ITEMS.forEach(item=>{
+    const sel=document.querySelector(`input[name="barthel-${item.id}"]:checked`);
+    if(!sel) completo=false; else total+=parseInt(sel.value);
+  });
+  if(!completo){notify('Completá todos los ítems');return;}
+  let interp=''; let color='';
+  if(total>=100){interp='Independiente';color='#2ecc71';}
+  else if(total>=90){interp='Dependencia escasa';color='#a8d5a2';}
+  else if(total>=65){interp='Dependencia moderada';color='#f39c12';}
+  else if(total>=45){interp='Dependencia grave';color='#e67e22';}
+  else{interp='Dependencia total';color='#e74c3c';}
+  const res=document.getElementById('cp-result-barthel');
+  res.style.display='block';
+  res.innerHTML=`<div style="text-align:center"><div style="font-size:48px;font-family:'Cormorant Garamond',serif;font-weight:600;color:${color}">${total}/100</div><div style="font-size:16px;color:${color};font-weight:700">${interp}</div></div>`;
+}
+
+async function saveBarthel(){
+  if(!currentCPEval) return;
+  let vals={}; let total=0;
+  BARTHEL_ITEMS.forEach(item=>{
+    const sel=document.querySelector(`input[name="barthel-${item.id}"]:checked`);
+    vals[item.id]=sel?parseInt(sel.value):null;
+    if(sel) total+=parseInt(sel.value);
+  });
+  let interp='';
+  if(total>=100) interp='Independiente'; else if(total>=90) interp='Dependencia escasa'; else if(total>=65) interp='Dependencia moderada'; else if(total>=45) interp='Dependencia grave'; else interp='Dependencia total';
+  showLoading('Guardando...');
+  await dbInsert('eval_barthel',{ eval_id:currentCPEval.id, paciente_id:currentCPEval.paciente_id, fecha:currentCPEval.fecha, ...vals, total, interpretacion:interp });
+  hideLoading(); notify('Índice de Barthel guardado ✓ — '+total+'/100 ('+interp+')');
+}
+
+// ══ TAB: DINAMOMETRÍA ══
+function cpTabDinamometria(){
+  return `<div class="card">
+    <div class="card-title">✊ Dinamometría de Prensión Manual</div>
+    <div class="form-row cols-2">
+      ${cpSel('din-dom','Mano dominante',[{v:'derecha',l:'Derecha'},{v:'izquierda',l:'Izquierda'}])}
+      ${cpField('din-edad','Edad (años)','number','')}
+    </div>
+    <div class="form-section-title">Mano dominante (kg)</div>
+    <div class="form-row cols-3">
+      ${cpField('din-d1','Intento 1','number','')}
+      ${cpField('din-d2','Intento 2','number','')}
+      ${cpField('din-d3','Intento 3','number','')}
+    </div>
+    <div class="form-section-title">Mano no dominante (kg)</div>
+    <div class="form-row cols-3">
+      ${cpField('din-nd1','Intento 1','number','')}
+      ${cpField('din-nd2','Intento 2','number','')}
+      ${cpField('din-nd3','Intento 3','number','')}
+    </div>
+    <button class="btn btn-outline btn-sm" onclick="calcDinamometria()" style="margin-top:8px">Calcular mejor valor</button>
+    ${cpResultBox('din')}
+    ${cpSaveBtn('saveDinamometria')}
+  </div>`;
+}
+
+function calcDinamometria(){
+  const d1=getV('din-d1'),d2=getV('din-d2'),d3=getV('din-d3');
+  const nd1=getV('din-nd1'),nd2=getV('din-nd2'),nd3=getV('din-nd3');
+  const domBest=Math.max(...[d1,d2,d3].filter(v=>v));
+  const ndomBest=Math.max(...[nd1,nd2,nd3].filter(v=>v));
+  const res=document.getElementById('cp-result-din');
+  res.style.display='block';
+  res.innerHTML=`<div style="display:flex;gap:32px">
+    ${domBest?`<div><div style="font-size:32px;font-family:'Cormorant Garamond',serif;font-weight:600;color:var(--sage)">${domBest}kg</div><div style="font-size:12px;color:var(--text-soft)">Mejor mano dominante</div></div>`:''}
+    ${ndomBest?`<div><div style="font-size:32px;font-family:'Cormorant Garamond',serif;font-weight:600;color:var(--bark)">${ndomBest}kg</div><div style="font-size:12px;color:var(--text-soft)">Mejor mano no dominante</div></div>`:''}
+  </div>`;
+}
+
+async function saveDinamometria(){
+  if(!currentCPEval) return;
+  const d1=getV('din-d1'),d2=getV('din-d2'),d3=getV('din-d3');
+  const nd1=getV('din-nd1'),nd2=getV('din-nd2'),nd3=getV('din-nd3');
+  const domBest=[d1,d2,d3].filter(v=>v).length?Math.max(...[d1,d2,d3].filter(v=>v)):null;
+  const ndomBest=[nd1,nd2,nd3].filter(v=>v).length?Math.max(...[nd1,nd2,nd3].filter(v=>v)):null;
+  showLoading('Guardando...');
+  await dbInsert('eval_dinamometria',{ eval_id:currentCPEval.id, paciente_id:currentCPEval.paciente_id, fecha:currentCPEval.fecha, mano_dom:getSV('din-dom'), dom_int1:d1, dom_int2:d2, dom_int3:d3, dom_mejor:domBest, nodom_int1:nd1, nodom_int2:nd2, nodom_int3:nd3, nodom_mejor:ndomBest });
+  hideLoading(); notify('Dinamometría guardada ✓');
+}
+
+// ══ TAB: FUERZA 1RM ══
+const GRUPOS_MUSCULARES = ['Cuádriceps (leg press)','Isquiotibiales (leg curl)','Glúteos (hip thrust)','Gemelos (calf raise)','Pectoral (press plano)','Dorsal (jalón al pecho)','Hombro (press militar)','Bíceps (curl)','Tríceps (extensión)','Abdominales','Lumbar (extensión)'];
+
+function cpTabFuerza(){
+  return `<div class="card">
+    <div class="card-title">💪 Test de Fuerza Muscular — 1RM (Fórmula Brzycki)</div>
+    <p style="font-size:13px;color:var(--text-soft);margin-bottom:16px">Ingresá el peso levantado y las repeticiones realizadas. El 1RM se calcula automáticamente: <strong>1RM = Peso / (1.0278 − 0.0278 × Reps)</strong></p>
+    <table style="width:100%;border-collapse:collapse;font-size:13px">
+      <thead><tr style="background:var(--sage-mist)">
+        <th style="padding:8px;text-align:left">Grupo muscular / Ejercicio</th>
+        <th style="padding:8px;text-align:center">Peso (kg)</th>
+        <th style="padding:8px;text-align:center">Reps</th>
+        <th style="padding:8px;text-align:center">1RM calculado</th>
+        <th style="padding:8px;text-align:left">Notas</th>
+      </tr></thead>
+      <tbody>
+        ${GRUPOS_MUSCULARES.map((g,i)=>`<tr style="border-bottom:1px solid var(--border)">
+          <td style="padding:8px"><strong style="font-size:12px">${g}</strong></td>
+          <td style="padding:4px 8px"><input type="number" id="fuerza-peso-${i}" placeholder="kg" oninput="calcBrzycki(${i})" style="width:70px;padding:6px;border:1.5px solid var(--border);border-radius:6px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;text-align:center"></td>
+          <td style="padding:4px 8px"><input type="number" id="fuerza-reps-${i}" placeholder="reps" oninput="calcBrzycki(${i})" style="width:60px;padding:6px;border:1.5px solid var(--border);border-radius:6px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;text-align:center"></td>
+          <td style="padding:8px;text-align:center;font-weight:700;color:var(--sage)" id="fuerza-rm-${i}">—</td>
+          <td style="padding:4px 8px"><input type="text" id="fuerza-obs-${i}" placeholder="Obs..." style="width:100%;padding:6px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;font-family:'DM Sans',sans-serif;outline:none"></td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+    ${cpSaveBtn('saveFuerza')}
+  </div>`;
+}
+
+function calcBrzycki(i){
+  const peso=parseFloat(document.getElementById('fuerza-peso-'+i)?.value)||0;
+  const reps=parseInt(document.getElementById('fuerza-reps-'+i)?.value)||0;
+  const el=document.getElementById('fuerza-rm-'+i);
+  if(!el) return;
+  if(peso>0&&reps>0&&reps<37){
+    const rm=peso/(1.0278-0.0278*reps);
+    el.textContent=Math.round(rm)+' kg';
+  } else el.textContent='—';
+}
+
+async function saveFuerza(){
+  if(!currentCPEval) return;
+  showLoading('Guardando...');
+  const fuerzaRec=await dbInsert('eval_fuerza',{ eval_id:currentCPEval.id, paciente_id:currentCPEval.paciente_id, fecha:currentCPEval.fecha });
+  if(fuerzaRec){
+    for(let i=0;i<GRUPOS_MUSCULARES.length;i++){
+      const peso=parseFloat(document.getElementById('fuerza-peso-'+i)?.value)||0;
+      const reps=parseInt(document.getElementById('fuerza-reps-'+i)?.value)||0;
+      if(!peso) continue;
+      const rm=reps>0&&reps<37?Math.round(peso/(1.0278-0.0278*reps)):null;
+      await dbInsert('eval_fuerza_grupos',{ fuerza_id:fuerzaRec.id, grupo_muscular:GRUPOS_MUSCULARES[i], ejercicio:GRUPOS_MUSCULARES[i], peso_kg:peso, repeticiones:reps, rm_calculado:rm, observaciones:document.getElementById('fuerza-obs-'+i)?.value||'' });
+    }
+  }
+  hideLoading(); notify('Test de fuerza guardado ✓');
+}
+
+// ══ TAB: ESPIROMETRÍA ══
+function cpTabEspirometria(){
+  return `<div class="card">
+    <div class="card-title">🫁 Espirometría</div>
+    <div style="display:grid;grid-template-columns:1fr 100px 100px 80px;gap:8px;align-items:center;padding:8px;background:var(--sage-mist);border-radius:var(--radius-sm);margin-bottom:8px;font-weight:700;font-size:12px;color:var(--text-soft);text-transform:uppercase">
+      <div>Parámetro</div><div style="text-align:center">Medido</div><div style="text-align:center">Teórico</div><div style="text-align:center">%</div>
+    </div>
+    ${[['cvf','CVF (L)'],['vef1','VEF1 (L)'],['fef2575','FEF 25-75 (L/s)'],['cpt','CPT (L)'],['vr','VR (L)'],['dlco','DLCO (mmol/min/kPa)']].map(([k,l])=>`
+    <div style="display:grid;grid-template-columns:1fr 100px 100px 80px;gap:8px;align-items:center;padding:8px;border-bottom:1px solid var(--border)">
+      <div style="font-size:13px;font-weight:600">${l}</div>
+      <input type="number" id="cp-espiro-${k}-m" step="0.01" placeholder="—" oninput="calcEspiroPct('${k}')" style="padding:6px 8px;border:1.5px solid var(--border);border-radius:6px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;text-align:center">
+      <input type="number" id="cp-espiro-${k}-t" step="0.01" placeholder="—" oninput="calcEspiroPct('${k}')" style="padding:6px 8px;border:1.5px solid var(--border);border-radius:6px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;text-align:center">
+      <div id="cp-espiro-${k}-pct" style="text-align:center;font-weight:700;font-size:13px;color:var(--sage)">—</div>
+    </div>`).join('')}
+    <div style="padding:8px;border-bottom:1px solid var(--border);display:grid;grid-template-columns:1fr 100px 100px 80px;gap:8px;align-items:center">
+      <div style="font-size:13px;font-weight:600">VEF1/CVF (%)</div>
+      <input type="number" id="cp-espiro-rel-m" step="0.01" placeholder="—" style="padding:6px 8px;border:1.5px solid var(--border);border-radius:6px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;text-align:center">
+      <input type="number" id="cp-espiro-rel-t" step="0.01" placeholder="—" style="padding:6px 8px;border:1.5px solid var(--border);border-radius:6px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;text-align:center">
+      <div>—</div>
+    </div>
+    <div class="form-row cols-2" style="margin-top:12px">
+      ${cpSel('espiro-patron','Patrón',[{v:'normal',l:'Normal'},{v:'obstructivo',l:'Obstructivo'},{v:'restrictivo',l:'Restrictivo'},{v:'mixto',l:'Mixto'}])}
+      ${cpField('espiro-interp','Interpretación','text','')}
+    </div>
+    ${cpSaveBtn('saveEspirometria')}
+  </div>`;
+}
+
+function calcEspiroPct(k){
+  const med=parseFloat(document.getElementById('cp-espiro-'+k+'-m')?.value)||0;
+  const teo=parseFloat(document.getElementById('cp-espiro-'+k+'-t')?.value)||0;
+  const el=document.getElementById('cp-espiro-'+k+'-pct');
+  if(el&&med&&teo){ const pct=Math.round((med/teo)*100); el.textContent=pct+'%'; el.style.color=pct>=80?'#2ecc71':'#e74c3c'; } 
+  else if(el) el.textContent='—';
+}
+
+async function saveEspirometria(){
+  if(!currentCPEval) return;
+  const gv=(k)=>({ m:parseFloat(document.getElementById('cp-espiro-'+k+'-m')?.value)||null, t:parseFloat(document.getElementById('cp-espiro-'+k+'-t')?.value)||null });
+  const calcPct=(m,t)=>m&&t?Math.round((m/t)*100):null;
+  const cvf=gv('cvf'),vef1=gv('vef1'),fef=gv('fef2575'),cpt=gv('cpt'),vr=gv('vr'),dlco=gv('dlco');
+  showLoading('Guardando...');
+  await dbInsert('eval_espirometria',{ eval_id:currentCPEval.id, paciente_id:currentCPEval.paciente_id, fecha:currentCPEval.fecha, cvf_medido:cvf.m, cvf_teorico:cvf.t, cvf_pct:calcPct(cvf.m,cvf.t), vef1_medido:vef1.m, vef1_teorico:vef1.t, vef1_pct:calcPct(vef1.m,vef1.t), fef2575_medido:fef.m, fef2575_teorico:fef.t, fef2575_pct:calcPct(fef.m,fef.t), cpt_medido:cpt.m, cpt_teorico:cpt.t, cpt_pct:calcPct(cpt.m,cpt.t), vr_medido:vr.m, vr_teorico:vr.t, vr_pct:calcPct(vr.m,vr.t), dlco_medido:dlco.m, dlco_teorico:dlco.t, dlco_pct:calcPct(dlco.m,dlco.t), relacion_medido:parseFloat(document.getElementById('cp-espiro-rel-m')?.value)||null, relacion_teorico:parseFloat(document.getElementById('cp-espiro-rel-t')?.value)||null, patron:getSV('espiro-patron'), interpretacion:getSV('espiro-interp') });
+  hideLoading(); notify('Espirometría guardada ✓');
+}
+
+// ══ TAB: ERGOMETRÍA ══
+function cpTabErgometria(){
+  return `<div class="card">
+    <div class="card-title">🚴 Ergometría</div>
+    <div class="form-row cols-3">
+      ${cpField('ergo-protocolo','Protocolo','text','Bruce, Naughton...')}
+      ${cpField('ergo-fcmaxteor','FC máxima teórica','number','')}
+      ${cpField('ergo-fcmaxalc','FC máxima alcanzada','number','')}
+    </div>
+    <div class="form-row cols-3">
+      ${cpField('ergo-pctfc','% FC máxima alcanzada','number','')}
+      ${cpField('ergo-vo2max','VO2max (ml/kg/min)','number','')}
+      ${cpField('ergo-pctvo2','% del teórico VO2max','number','')}
+    </div>
+    <div class="form-row cols-3">
+      ${cpField('ergo-cargamax','Carga máxima (watts)','number','')}
+      ${cpField('ergo-met','MET máximo','number','')}
+      ${cpField('ergo-tiempo','Tiempo total (seg)','number','')}
+    </div>
+    <div class="form-row cols-2">
+      ${cpTA('ergo-ta','TA final')}
+      ${cpSel('ergo-motivo','Motivo detención',[{v:'completo',l:'Protocolo completado'},{v:'fc',l:'FC objetivo'},{v:'fatiga',l:'Fatiga'},{v:'disnea',l:'Disnea'},{v:'ecg',l:'Cambios ECG'},{v:'ta',l:'TA'},{v:'otro',l:'Otro'}])}
+    </div>
+    <div class="form-row">
+      ${cpField('ergo-ecg','Cambios ECG','text','')}
+    </div>
+    <div class="form-row">
+      ${cpField('ergo-interp','Interpretación','text','')}
+    </div>
+    ${cpSaveBtn('saveErgometria')}
+  </div>`;
+}
+
+async function saveErgometria(){
+  if(!currentCPEval) return;
+  showLoading('Guardando...');
+  await dbInsert('eval_ergometria',{ eval_id:currentCPEval.id, paciente_id:currentCPEval.paciente_id, fecha:currentCPEval.fecha, protocolo:getSV('ergo-protocolo'), fc_maxima_teorica:getV('ergo-fcmaxteor'), fc_maxima_alcanzada:getV('ergo-fcmaxalc'), pct_fc_max:getV('ergo-pctfc'), vo2_max:getV('ergo-vo2max'), vo2_max_pct_teorico:getV('ergo-pctvo2'), carga_maxima:getV('ergo-cargamax'), met_max:getV('ergo-met'), tiempo_total:getV('ergo-tiempo'), presion_final_s:getV('ergo-ta-s'), presion_final_d:getV('ergo-ta-d'), motivo_detencion:getSV('ergo-motivo'), cambios_ecg:getSV('ergo-ecg'), interpretacion:getSV('ergo-interp') });
+  hideLoading(); notify('Ergometría guardada ✓');
+}
+
+// ══ TAB: TEST INCREMENTAL ══
+function cpTabIncremental(){
+  return `<div class="card">
+    <div class="card-title">📈 Test Incremental</div>
+    <div class="form-row cols-2">
+      ${cpSel('incr-modal','Modalidad',[{v:'cicloergometro',l:'Cicloergómetro'},{v:'cinta',l:'Cinta deslizable'}])}
+      ${cpField('incr-protocolo','Protocolo','text','')}
+    </div>
+    <div class="form-row cols-3">
+      ${cpField('incr-velmax','Vel. máxima alcanzada (km/h)','number','')}
+      ${cpField('incr-cargamax','Carga máxima (watts)','number','')}
+      ${cpField('incr-vam','VAM (km/h)','number','')}
+    </div>
+    <div class="form-row cols-4">
+      ${cpField('incr-fcmax','FC máxima (lpm)','number','')}
+      ${cpField('incr-spo2min','SpO2 mínima (%)','number','')}
+      ${cpField('incr-borg','Borg final','number','')}
+      ${cpField('incr-tiempo','Tiempo total (seg)','number','')}
+    </div>
+    <div class="form-row">
+      ${cpField('incr-motivo','Motivo detención','text','')}
+    </div>
+    <button class="btn btn-outline btn-sm" onclick="calcVAM()" style="margin-top:8px">Calcular zonas de entrenamiento</button>
+    ${cpResultBox('incr')}
+    ${cpSaveBtn('saveIncremental')}
+  </div>`;
+}
+
+function calcVAM(){
+  const vam=getV('incr-vam')||getV('incr-velmax');
+  const carga=getV('incr-cargamax');
+  if(!vam&&!carga) return;
+  const res=document.getElementById('cp-result-incr');
+  res.style.display='block';
+  let html='<div style="font-weight:700;color:var(--sage);margin-bottom:10px">Zonas de entrenamiento aeróbico:</div>';
+  if(vam){
+    html+=`<table style="width:100%;font-size:13px;border-collapse:collapse">
+      <tr style="background:var(--sage-mist)"><th style="padding:6px;text-align:left">Zona</th><th style="padding:6px;text-align:center">%VAM</th><th style="padding:6px;text-align:center">Velocidad (km/h)</th></tr>
+      ${[[50,60,'Z1 - Recuperación'],[60,70,'Z2 - Base aeróbica'],[70,80,'Z3 - Aeróbico moderado'],[80,90,'Z4 - Aeróbico intenso'],[90,100,'Z5 - VO2max']].map(([min,max,nombre])=>`
+      <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px">${nombre}</td><td style="padding:6px;text-align:center">${min}-${max}%</td><td style="padding:6px;text-align:center;font-weight:700">${(vam*min/100).toFixed(1)} - ${(vam*max/100).toFixed(1)}</td></tr>`).join('')}
+    </table>`;
+  }
+  if(carga){
+    html+=`<div style="margin-top:12px;font-weight:700;color:var(--sage)">Por carga (watts):</div>
+    <table style="width:100%;font-size:13px;border-collapse:collapse;margin-top:6px">
+      <tr style="background:var(--sage-mist)"><th style="padding:6px;text-align:left">Zona</th><th style="padding:6px;text-align:center">%Carga máx</th><th style="padding:6px;text-align:center">Watts</th></tr>
+      ${[[40,60,'Baja intensidad'],[60,75,'Intensidad moderada'],[75,90,'Alta intensidad']].map(([min,max,nombre])=>`
+      <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px">${nombre}</td><td style="padding:6px;text-align:center">${min}-${max}%</td><td style="padding:6px;text-align:center;font-weight:700">${Math.round(carga*min/100)} - ${Math.round(carga*max/100)} W</td></tr>`).join('')}
+    </table>`;
+  }
+  res.innerHTML=html;
+}
+
+async function saveIncremental(){
+  if(!currentCPEval) return;
+  showLoading('Guardando...');
+  await dbInsert('eval_test_incremental',{ eval_id:currentCPEval.id, paciente_id:currentCPEval.paciente_id, fecha:currentCPEval.fecha, modalidad:getSV('incr-modal'), protocolo:getSV('incr-protocolo'), vel_max_alcanzada:getV('incr-velmax'), carga_maxima:getV('incr-cargamax'), fc_maxima:getV('incr-fcmax'), spo2_minima:getV('incr-spo2min'), borg_final:getV('incr-borg'), tiempo_total:getV('incr-tiempo'), vam:getV('incr-vam'), motivo_detencion:getSV('incr-motivo') });
+  hideLoading(); notify('Test incremental guardado ✓');
+}
+
+// ══ TAB: CARGA CONSTANTE ══
+function cpTabCargaConstante(){
+  return `<div class="card">
+    <div class="card-title">🔄 Test de Carga Constante</div>
+    <div class="form-row cols-2">
+      ${cpSel('cc-modal','Modalidad',[{v:'cicloergometro',l:'Bicicleta fija'},{v:'cinta',l:'Cinta deslizable'}])}
+      ${cpField('cc-carga','Carga de trabajo (% del máximo)','number','')}
+    </div>
+    <div class="form-row cols-2">
+      ${cpField('cc-tiempo','Tiempo tolerado (seg)','number','')}
+    </div>
+    <div class="form-row cols-3">
+      ${cpField('cc-fcini','FC inicio','number','')}
+      ${cpField('cc-spo2ini','SpO2 inicio (%)','number','')}
+      ${cpField('cc-borgini','Borg inicio','number','')}
+    </div>
+    <div class="form-row cols-3">
+      ${cpField('cc-fcfin','FC final','number','')}
+      ${cpField('cc-spo2fin','SpO2 final (%)','number','')}
+      ${cpField('cc-borgfin','Borg final','number','')}
+    </div>
+    ${cpField('cc-obs','Observaciones','text','')}
+    ${cpSaveBtn('saveCargaConstante')}
+  </div>`;
+}
+
+async function saveCargaConstante(){
+  if(!currentCPEval) return;
+  showLoading('Guardando...');
+  await dbInsert('eval_carga_constante',{ eval_id:currentCPEval.id, paciente_id:currentCPEval.paciente_id, fecha:currentCPEval.fecha, modalidad:getSV('cc-modal'), carga_trabajo:getV('cc-carga'), tiempo_tolerado:getV('cc-tiempo'), fc_inicio:getV('cc-fcini'), fc_final:getV('cc-fcfin'), spo2_inicio:getV('cc-spo2ini'), spo2_final:getV('cc-spo2fin'), borg_inicio:getV('cc-borgini'), borg_final:getV('cc-borgfin'), observaciones:getSV('cc-obs') });
+  hideLoading(); notify('Carga constante guardada ✓');
+}
+
+// ══ TAB: PLAN AERÓBICO ══
+function cpTabPlanAerobico(){
+  return `<div class="card">
+    <div class="card-title">🏃 Planificación de Entrenamiento Aeróbico</div>
+    <div class="form-row cols-3">
+      ${cpSel('plan-aero-modal','Modalidad',[{v:'cinta',l:'Cinta deslizable'},{v:'cicloergometro',l:'Cicloergómetro'},{v:'caminata',l:'Caminata'},{v:'mixto',l:'Mixto'}])}
+      ${cpField('plan-aero-vam','VAM base (km/h) o carga máx (W)','number','')}
+      ${cpField('plan-aero-semanas','Número de semanas','number','8')}
+    </div>
+    <div class="form-row cols-2">
+      ${cpField('plan-aero-inicio','Fecha inicio','date','')}
+      ${cpField('plan-aero-sesiones','Sesiones por semana','number','3')}
+    </div>
+    <button class="btn btn-outline btn-sm" onclick="generarPlanAerobico()" style="margin-top:8px">⚡ Generar plan</button>
+    ${cpResultBox('plan-aero')}
+    ${cpSaveBtn('savePlanAerobico')}
+  </div>`;
+}
+
+function generarPlanAerobico(){
+  const vam=getV('plan-aero-vam');
+  const semanas=getV('plan-aero-semanas')||8;
+  if(!vam){notify('Ingresá la VAM o carga máxima');return;}
+  
+  // Progressive plan: start at 60%, increase 5% every 2 weeks
+  const plan=[];
+  for(let s=1;s<=semanas;s++){
+    const pct=Math.min(60+Math.floor((s-1)/2)*5,90);
+    const carga=Math.round(vam*pct/100*10)/10;
+    const durMin=Math.min(20+Math.floor((s-1)/2)*5,45);
+    plan.push({semana:s,pct,carga,durMin});
+  }
+  
+  const res=document.getElementById('cp-result-plan-aero');
+  res.style.display='block';
+  res.innerHTML=`<div style="font-weight:700;color:var(--sage);margin-bottom:10px">Plan de entrenamiento aeróbico progresivo:</div>
+  <table style="width:100%;font-size:13px;border-collapse:collapse">
+    <thead><tr style="background:var(--sage-mist)"><th style="padding:6px;text-align:left">Semana</th><th style="padding:6px;text-align:center">%</th><th style="padding:6px;text-align:center">Velocidad/Carga</th><th style="padding:6px;text-align:center">Duración</th><th style="padding:6px;text-align:left">Descripción</th></tr></thead>
+    <tbody>${plan.map(p=>`<tr style="border-bottom:1px solid var(--border)"><td style="padding:6px;font-weight:600">S${p.semana}</td><td style="padding:6px;text-align:center">${p.pct}%</td><td style="padding:6px;text-align:center;font-weight:700;color:var(--sage)">${p.carga}</td><td style="padding:6px;text-align:center">${p.durMin} min</td><td style="padding:6px;color:var(--text-soft);font-size:12px">${p.pct<70?'Fase adaptación':p.pct<80?'Fase desarrollo':'Fase mantenimiento intenso'}</td></tr>`).join('')}</tbody>
+  </table>`;
+  
+  // Store plan for saving
+  window._planAero = plan;
+}
+
+async function savePlanAerobico(){
+  if(!currentCPEval) return;
+  showLoading('Guardando...');
+  await dbInsert('plan_aerobico',{ paciente_id:currentCPEval.paciente_id, profesional_id:currentCPEval.profesional_id, profesional_nombre:currentCPEval.profesional_nombre, fecha_inicio:getSV('plan-aero-inicio')||currentCPEval.fecha, modalidad:getSV('plan-aero-modal'), vam_base:getV('plan-aero-vam'), semanas:window._planAero||[], observaciones:'' });
+  hideLoading(); notify('Plan aeróbico guardado ✓');
+}
+
+// ══ TAB: PLAN FUERZA ══
+function cpTabPlanFuerza(){
+  return `<div class="card">
+    <div class="card-title">🏋 Planificación de Entrenamiento de Fuerza Muscular</div>
+    <div class="form-row cols-3">
+      ${cpField('plan-f-semanas','Número de semanas','number','8')}
+      ${cpField('plan-f-inicio','Fecha inicio','date','')}
+      ${cpField('plan-f-sesiones','Sesiones por semana','number','2')}
+    </div>
+    <p style="font-size:13px;color:var(--text-soft);margin-bottom:12px">Ingresá el 1RM de cada grupo muscular (calculado previamente):</p>
+    <table style="width:100%;border-collapse:collapse;font-size:13px">
+      <thead><tr style="background:var(--sage-mist)"><th style="padding:6px;text-align:left">Grupo muscular</th><th style="padding:6px;text-align:center">1RM (kg)</th></tr></thead>
+      <tbody>${GRUPOS_MUSCULARES.slice(0,8).map((g,i)=>`<tr style="border-bottom:1px solid var(--border)"><td style="padding:8px;font-weight:600">${g}</td><td style="padding:4px 8px"><input type="number" id="planf-rm-${i}" placeholder="kg" style="width:80px;padding:6px;border:1.5px solid var(--border);border-radius:6px;font-size:13px;text-align:center;font-family:'DM Sans',sans-serif;outline:none"></td></tr>`).join('')}</tbody>
+    </table>
+    <button class="btn btn-outline btn-sm" onclick="generarPlanFuerza()" style="margin-top:12px">⚡ Generar plan progresivo</button>
+    ${cpResultBox('plan-fuerza')}
+    ${cpSaveBtn('savePlanFuerza')}
+  </div>`;
+}
+
+function generarPlanFuerza(){
+  const semanas=getV('plan-f-semanas')||8;
+  const rms=GRUPOS_MUSCULARES.slice(0,8).map((_,i)=>({g:GRUPOS_MUSCULARES[i],rm:getV('planf-rm-'+i)||0})).filter(x=>x.rm>0);
+  if(!rms.length){notify('Ingresá al menos un 1RM');return;}
+  
+  // Progressive plan: 3 phases
+  const fases=[
+    {nombre:'Adaptación neuromuscular',semanas:[1,2],series:3,reps:'15-20',pct:50},
+    {nombre:'Hipertrofia/Resistencia',semanas:[3,5],series:3,reps:'10-15',pct:60},
+    {nombre:'Fuerza moderada',semanas:[6,7],series:4,reps:'8-12',pct:70},
+    {nombre:'Fuerza máxima progresiva',semanas:[8,semanas],series:4,reps:'6-10',pct:80},
+  ].filter(f=>f.semanas[0]<=semanas);
+  
+  const res=document.getElementById('cp-result-plan-fuerza');
+  res.style.display='block';
+  res.innerHTML=`<div style="font-weight:700;color:var(--sage);margin-bottom:10px">Plan de fuerza muscular progresivo (${semanas} semanas):</div>
+  ${fases.map(f=>`<div style="margin-bottom:14px"><div style="font-weight:700;font-size:13px;color:var(--sage);padding:6px;background:var(--sage-mist);border-radius:6px;margin-bottom:6px">📅 Semanas ${f.semanas[0]}-${Math.min(f.semanas[1],semanas)} — ${f.nombre}</div>
+  <div style="font-size:12px;color:var(--text-soft);margin-bottom:6px">${f.series} series × ${f.reps} repeticiones · ${f.pct}% del 1RM</div>
+  <table style="width:100%;font-size:12px;border-collapse:collapse"><thead><tr style="background:var(--border)"><th style="padding:4px 6px;text-align:left">Ejercicio</th><th style="padding:4px 6px;text-align:center">1RM</th><th style="padding:4px 6px;text-align:center">Carga (${f.pct}%)</th><th style="padding:4px 6px;text-align:center">Series×Reps</th></tr></thead>
+  <tbody>${rms.map(r=>`<tr style="border-bottom:1px solid var(--border)"><td style="padding:4px 6px">${r.g}</td><td style="padding:4px 6px;text-align:center">${r.rm}kg</td><td style="padding:4px 6px;text-align:center;font-weight:700;color:var(--sage)">${Math.round(r.rm*f.pct/100)}kg</td><td style="padding:4px 6px;text-align:center">${f.series}×${f.reps}</td></tr>`).join('')}</tbody></table></div>`).join('')}`;
+  
+  window._planFuerza = {fases, rms};
+}
+
+async function savePlanFuerza(){
+  if(!currentCPEval) return;
+  showLoading('Guardando...');
+  await dbInsert('plan_fuerza',{ paciente_id:currentCPEval.paciente_id, profesional_id:currentCPEval.profesional_id, profesional_nombre:currentCPEval.profesional_nombre, fecha_inicio:getSV('plan-f-inicio')||currentCPEval.fecha, semanas:window._planFuerza||{} });
+  hideLoading(); notify('Plan de fuerza guardado ✓');
+}
+
+// ══ INFORME CARDIOPULMONAR ══
+async function generarInformeCP(){
+  if(!currentCPEval) return;
+  const pac=pacientes.find(p=>p.id===currentCPEval.paciente_id);
+  mostrarModalInforme(`Informe Cardiopulmonar — ${pac?pac.apellido+', '+pac.nombre:'?'}`);
+  
+  // Load all data for this eval
+  showLoading('Cargando datos...');
+  const [cat,sf36,euroqol,sgrq,mwt,sts,tug,barthel,din,signos,espiro,ergo,incr,cc]=await Promise.all([
+    sb.from('eval_cat').select('*').eq('eval_id',currentCPEval.id).order('created_at',{ascending:false}).limit(1),
+    sb.from('eval_sf36').select('*').eq('eval_id',currentCPEval.id).order('created_at',{ascending:false}).limit(1),
+    sb.from('eval_euroqol').select('*').eq('eval_id',currentCPEval.id).order('created_at',{ascending:false}).limit(1),
+    sb.from('eval_sgrq').select('*').eq('eval_id',currentCPEval.id).order('created_at',{ascending:false}).limit(1),
+    sb.from('eval_6mwt').select('*').eq('eval_id',currentCPEval.id).order('created_at',{ascending:false}).limit(1),
+    sb.from('eval_sts').select('*').eq('eval_id',currentCPEval.id).order('created_at',{ascending:false}).limit(1),
+    sb.from('eval_tug').select('*').eq('eval_id',currentCPEval.id).order('created_at',{ascending:false}).limit(1),
+    sb.from('eval_barthel').select('*').eq('eval_id',currentCPEval.id).order('created_at',{ascending:false}).limit(1),
+    sb.from('eval_dinamometria').select('*').eq('eval_id',currentCPEval.id).order('created_at',{ascending:false}).limit(1),
+    sb.from('eval_signos').select('*').eq('eval_id',currentCPEval.id).order('created_at',{ascending:false}).limit(1),
+    sb.from('eval_espirometria').select('*').eq('eval_id',currentCPEval.id).order('created_at',{ascending:false}).limit(1),
+    sb.from('eval_ergometria').select('*').eq('eval_id',currentCPEval.id).order('created_at',{ascending:false}).limit(1),
+    sb.from('eval_test_incremental').select('*').eq('eval_id',currentCPEval.id).order('created_at',{ascending:false}).limit(1),
+    sb.from('eval_carga_constante').select('*').eq('eval_id',currentCPEval.id).order('created_at',{ascending:false}).limit(1),
+  ]);
+  hideLoading();
+  
+  const d=(r)=>r?.data?.[0]||null;
+  const catD=d(cat), sf36D=d(sf36), euroqolD=d(euroqol), sgrqD=d(sgrq), mwtD=d(mwt), stsD=d(sts), tugD=d(tug), barthelD=d(barthel), dinD=d(din), signosD=d(signos), espiroD=d(espiro), ergoD=d(ergo), incrD=d(incr), ccD=d(cc);
+  
+  const prompt=`Sos un especialista en rehabilitación cardiopulmonar. Redactá un informe clínico completo y profesional en español para el centro "Sapiens Rehabilitación e Investigación Multidisciplinaria".
+
+PACIENTE: ${pac?pac.apellido+', '+pac.nombre:'?'} | DNI: ${pac?.dni||'—'} | Fecha nac: ${pac?.fecha_nac||'—'} | Sexo: ${pac?.sexo||'—'}
+TIPO DE EVALUACIÓN: ${currentCPEval.tipo==='evaluacion_inicial'?'Evaluación inicial':'Reevaluación'} | Fecha: ${currentCPEval.fecha} | Profesional: ${currentCPEval.profesional_nombre||'—'}
+DIAGNÓSTICO: ${pac?.diagnostico||'—'}
+
+CALIDAD DE VIDA:
+${catD?`CAT: ${catD.total} puntos — ${catD.interpretacion}`:'CAT: No realizado'}
+${sf36D?`SF-36: Función física ${sf36D.funcion_fisica} | Rol físico ${sf36D.rol_fisico} | Salud general ${sf36D.salud_general} | PCS ${sf36D.pcs} | MCS ${sf36D.mcs}`:'SF-36: No realizado'}
+${euroqolD?`EuroQoL: Movilidad ${euroqolD.movilidad} | Autocuidado ${euroqolD.autocuidado} | EVA ${euroqolD.eva} | Índice ${euroqolD.eq5d_indice}`:'EuroQoL: No realizado'}
+${sgrqD?`SGRQ: Síntomas ${sgrqD.sintomas_score} | Actividad ${sgrqD.actividad_score} | Impacto ${sgrqD.impacto_score} | Total ${sgrqD.total_score}`:'SGRQ: No realizado'}
+
+CAPACIDAD FÍSICA:
+${mwtD?`6MWT: ${mwtD.distancia_total}m recorridos (${mwtD.porcentaje_teorico}% del teórico ${mwtD.distancia_teorica}m) | SpO2 basal ${mwtD.spo2_basal}% → final ${mwtD.spo2_final}% | FC ${mwtD.fc_basal}→${mwtD.fc_final} lpm | Borg ${mwtD.borg_basal}→${mwtD.borg_final}`:'6MWT: No realizado'}
+${stsD?`STS ${stsD.tipo}: ${stsD.repeticiones} repeticiones (${stsD.porcentaje_teorico||'—'}% del teórico)`:'STS: No realizado'}
+${tugD?`TUG: ${tugD.tiempo_seg}s — ${tugD.interpretacion}`:'TUG: No realizado'}
+${barthelD?`Barthel: ${barthelD.total}/100 — ${barthelD.interpretacion}`:'Barthel: No realizado'}
+${dinD?`Dinamometría: Dom ${dinD.dom_mejor}kg | No dom ${dinD.nodom_mejor}kg`:'Dinamometría: No realizada'}
+
+SIGNOS VITALES:
+${signosD?`SpO2 ${signosD.spo2}% | FC ${signosD.fc} lpm | TA prom ${signosD.ta_prom_s}/${signosD.ta_prom_d} mmHg | Borg reposo ${signosD.borg_reposo} | Borg esfuerzo ${signosD.borg_esfuerzo}`:'Sin registro de signos vitales'}
+
+FUNCIÓN PULMONAR:
+${espiroD?`CVF ${espiroD.cvf_medido}L (${espiroD.cvf_pct}%) | VEF1 ${espiroD.vef1_medido}L (${espiroD.vef1_pct}%) | VEF1/CVF ${espiroD.relacion_medido} | Patrón: ${espiroD.patron} | ${espiroD.interpretacion}`:'Espirometría: No realizada'}
+
+PRUEBA DE ESFUERZO:
+${ergoD?`Ergometría: FC max ${ergoD.fc_maxima_alcanzada}/${ergoD.fc_maxima_teorica} lpm (${ergoD.pct_fc_max}%) | VO2max ${ergoD.vo2_max} ml/kg/min | Carga máx ${ergoD.carga_maxima}W | ${ergoD.interpretacion}`:'Ergometría: No realizada'}
+${incrD?`Test incremental (${incrD.modalidad}): VAM ${incrD.vam} km/h | Carga max ${incrD.carga_maxima}W | FC max ${incrD.fc_maxima} lpm | SpO2 mín ${incrD.spo2_minima}%`:'Test incremental: No realizado'}
+${ccD?`Carga constante: ${ccD.carga_trabajo}% de carga máx | Tiempo tolerado ${ccD.tiempo_tolerado}s | Borg ${ccD.borg_inicio}→${ccD.borg_final}`:'Carga constante: No realizado'}
+
+Redactá el informe con: 1) Encabezado formal, 2) Presentación del paciente, 3) Resultados por área (calidad de vida, capacidad funcional, función pulmonar, prueba de esfuerzo) con interpretación clínica de cada valor, 4) Diagnóstico funcional integral, 5) Objetivos del programa de rehabilitación, 6) Recomendaciones y plan terapéutico. Usá lenguaje clínico especializado en rehabilitación cardiopulmonar.`;
+
+  await llamarIA(prompt);
 }
 
 </script>

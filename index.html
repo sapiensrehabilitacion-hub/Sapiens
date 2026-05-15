@@ -1859,8 +1859,6 @@ function seleccionarPaciente(rowIdx, pacId, nombre, dni){
 
 
 // ══ GASTOS COMPARTIDOS ══
-let gastos_data = [];
-let socias_data = [];
 
 async function loadGastosPanel(){
   socias_data = await dbGet('socias');
@@ -2056,8 +2054,6 @@ async function toggleSocia(id, activa){
 
 
 // ══ REHABILITACIÓN CARDIOPULMONAR ══
-let cp_evals = [];
-let currentCPEval = null;
 
 async function loadCardiopulmonar(){
   cp_evals = await dbGet('eval_cardiopulmonar');

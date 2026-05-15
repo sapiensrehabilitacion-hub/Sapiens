@@ -1875,25 +1875,26 @@ function seleccionarPaciente(rowIdx, pacId, nombre, dni){
 async function loadGastosPanel(){
   socias_data = await dbGet('socias');
   const mesActual = new Date().toISOString().slice(0,7);
-  // Populate month selector
+  const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const anio = new Date().getFullYear();
   const sel = document.getElementById('gastos-mes-sel');
-  if(sel && !sel.options.length){
-    const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-    const anio = new Date().getFullYear();
+  if(sel){
+    sel.innerHTML = '';
+    // Current year
     for(let m=0; m<12; m++){
-      const val = `${anio}-${String(m+1).padStart(2,'0')}`;
+      const val = anio + '-' + String(m+1).padStart(2,'0');
       const opt = document.createElement('option');
       opt.value = val;
       opt.textContent = meses[m] + ' ' + anio;
       if(val === mesActual) opt.selected = true;
       sel.appendChild(opt);
     }
-    // Add previous year months
+    // Previous year
     for(let m=11; m>=0; m--){
-      const val = `${anio-1}-${String(m+1).padStart(2,'0')}`;
+      const val = (anio-1) + '-' + String(m+1).padStart(2,'0');
       const opt = document.createElement('option');
       opt.value = val;
-      opt.textContent = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'][m] + ' ' + (anio-1);
+      opt.textContent = meses[m] + ' ' + (anio-1);
       sel.appendChild(opt);
     }
   }

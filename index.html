@@ -751,6 +751,18 @@ let usuarios = [], pacientes = [], turnos = [], fichas = [];
 let calYear, calMonth;
 let editingUserId = null;
 let informeTexto = '';
+// CP & contable globals
+let cp_evals = [];
+let currentCPEval = null;
+let gastos_data = [];
+let socias_data = [];
+let sesiones_data = [];
+let sesion_pacs_data = [];
+let currentSesionId = null;
+let currentSesionPct = 20;
+let pagos_data = [];
+let movimientos_data = [];
+let tiposConsulta = [];
 
 // ── LOGO ──
 const LOGO_B64 = 'LOGO_PLACEHOLDER';
@@ -1980,27 +1992,45 @@ function renderGastos(){
 function openGastoModal(id=null){
   // Populate pagado por
   const sel = document.getElementById('gasto-pagado');
-  sel.innerHTML = '<option value="Consultorio">Consultorio</option>';
-  socias_data.filter(s=>s.activa).forEach(s => sel.innerHTML += `<option value="${s.nombre}">${s.nombre}</option>`);
-  const mes = document.getElementById('gastos-mes-sel')?.value || new Date().toISOString().slice(0,7);
-  document.getElementById('gasto-mes').value = mes;
-  document.getElementById('gasto-valor').value = '';
-  document.getElementById('gasto-desc').value = '';
+  if(sel){
+    sel.innerHTML = '<option value="Consultorio">Consultorio</option>';
+    (socias_data||[]).filter(s=>s.activa).forEach(s => {
+      const opt = document.createElement('option');
+      opt.value = s.nombre;
+      opt.textContent = s.nombre;
+      sel.appendChild(opt);
+    });
+  }
+  const mesEl = document.getElementById('gastos-mes-sel');
+  const mesVal = mesEl ? mesEl.value : new Date().toISOString().slice(0,7);
+  const mesInput = document.getElementById('gasto-mes');
+  if(mesInput) mesInput.value = mesVal;
+  const valorEl = document.getElementById('gasto-valor');
+  if(valorEl) valorEl.value = '';
+  const descEl = document.getElementById('gasto-desc');
+  if(descEl) descEl.value = '';
   openModal('modal-gasto');
 }
 
 async function saveGasto(){
-  const valor = parseFloat(document.getElementById('gasto-valor').value);
-  const mes = document.getElementById('gasto-mes').value;
+  const valorEl = document.getElementById('gasto-valor');
+  const mesEl = document.getElementById('gasto-mes');
+  const catEl = document.getElementById('gasto-cat');
+  const descEl = document.getElementById('gasto-desc');
+  const pagadoEl = document.getElementById('gasto-pagado');
+  
+  const valor = parseFloat(valorEl?.value) || 0;
+  const mes = mesEl?.value || '';
   if(!mes){ notify('Completá el mes'); return; }
+  
   showLoading('Guardando...');
   await dbInsert('gastos_compartidos', {
     mes,
-    categoria: document.getElementById('gasto-cat').value,
-    descripcion: document.getElementById('gasto-desc').value,
-    valor: valor||0,
-    pagado_por: document.getElementById('gasto-pagado').value,
-    pagado_consultorio: document.getElementById('gasto-pagado').value === 'Consultorio'
+    categoria: catEl?.value || 'Otros',
+    descripcion: descEl?.value || '',
+    valor,
+    pagado_por: pagadoEl?.value || 'Consultorio',
+    pagado_consultorio: (pagadoEl?.value || '') === 'Consultorio'
   });
   await loadGastos();
   hideLoading();
@@ -2263,24 +2293,27 @@ const CAT_PREGUNTAS = [
 ];
 
 function cpTabCAT(){
-  return `<div class="card">
-    <div class="card-title">📋 COPD Assessment Test (CAT)</div>
-    <p style="font-size:13px;color:var(--text-soft);margin-bottom:16px">Puntaje de 0 (mejor) a 5 (peor) para cada ítem</p>
-    ${CAT_PREGUNTAS.map((q,i) => {
-      const [izq,der] = q.split('/');
-      return `<div style="margin-bottom:14px;padding:12px;background:var(--sage-mist);border-radius:var(--radius-sm)">
-        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-soft);margin-bottom:8px">
-          <span>${izq.trim()}</span><span>${der.trim()}</span>
-        </div>
-        <div style="display:flex;gap:8px;justify-content:center">
-          ${[0,1,2,3,4,5].map(v=>`<label style="display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer"><input type="radio" name="cat-${i}" value="${v}" style="cursor:pointer"><span style="font-size:13px;font-weight:600">${v}</span></label>`).join('')}
-        </div>
-      </div>`;
-    }).join('')}
-    <button class="btn btn-outline btn-sm" onclick="calcCAT()" style="margin-top:8px">Calcular puntaje</button>
-    ${cpResultBox('cat')}
-    ${cpSaveBtn('saveCAT')}
-  </div>`;
+  const rows = CAT_PREGUNTAS.map((q,i) => {
+    const parts = q.split('/');
+    const izq = parts[0].trim();
+    const der = parts[1] ? parts[1].trim() : '';
+    return '<div style="margin-bottom:14px;padding:12px;background:var(--sage-mist);border-radius:var(--radius-sm)">' +
+      '<div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-soft);margin-bottom:8px">' +
+      '<span>' + izq + '</span><span>' + der + '</span></div>' +
+      '<div style="display:flex;gap:8px;justify-content:center">' +
+      [0,1,2,3,4,5].map(v =>
+        '<label style="display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer">' +
+        '<input type="radio" name="cat-' + i + '" value="' + v + '" style="cursor:pointer">' +
+        '<span style="font-size:13px;font-weight:600">' + v + '</span></label>'
+      ).join('') +
+      '</div></div>';
+  }).join('');
+  return '<div class="card"><div class="card-title">📋 COPD Assessment Test (CAT)</div>' +
+    '<p style="font-size:13px;color:var(--text-soft);margin-bottom:16px">Puntaje de 0 (mejor) a 5 (peor) para cada ítem</p>' +
+    rows +
+    '<button class="btn btn-outline btn-sm" onclick="calcCAT()" style="margin-top:8px">Calcular puntaje</button>' +
+    cpResultBox("cat") +
+    cpSaveBtn("saveCAT") + '</div>';
 }
 
 function calcCAT(){
@@ -2587,18 +2620,20 @@ const BARTHEL_ITEMS = [
 ];
 
 function cpTabBarthel(){
-  return `<div class="card">
-    <div class="card-title">📊 Índice de Barthel</div>
-    ${BARTHEL_ITEMS.map(item=>`<div style="margin-bottom:10px;padding:10px;background:var(--sage-mist);border-radius:var(--radius-sm)">
-      <div style="font-weight:600;font-size:13px;margin-bottom:6px">${item.label}</div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        ${item.opts.map(o=>`<label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:13px"><input type="radio" name="barthel-${item.id}" value="${o.v}"> ${o.l} (${o.v})</label>`).join('')}
-      </div>
-    </div>`).join('')}
-    <button class="btn btn-outline btn-sm" onclick="calcBarthel()" style="margin-top:8px">Calcular puntaje</button>
-    ${cpResultBox('barthel')}
-    ${cpSaveBtn('saveBarthel')}
-  </div>`;
+  const rows = BARTHEL_ITEMS.map(item => {
+    const opts = item.opts.map(o =>
+      '<label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:13px">' +
+      '<input type="radio" name="barthel-' + item.id + '" value="' + o.v + '"> ' + o.l + ' (' + o.v + ')</label>'
+    ).join('');
+    return '<div style="margin-bottom:10px;padding:10px;background:var(--sage-mist);border-radius:var(--radius-sm)">' +
+      '<div style="font-weight:600;font-size:13px;margin-bottom:6px">' + item.label + '</div>' +
+      '<div style="display:flex;gap:8px;flex-wrap:wrap">' + opts + '</div></div>';
+  }).join('');
+  return '<div class="card"><div class="card-title">📊 Índice de Barthel</div>' +
+    rows +
+    '<button class="btn btn-outline btn-sm" onclick="calcBarthel()" style="margin-top:8px">Calcular puntaje</button>' +
+    cpResultBox("barthel") +
+    cpSaveBtn("saveBarthel") + '</div>';
 }
 
 function calcBarthel(){
@@ -2688,29 +2723,26 @@ async function saveDinamometria(){
 const GRUPOS_MUSCULARES = ['Cuádriceps (leg press)','Isquiotibiales (leg curl)','Glúteos (hip thrust)','Gemelos (calf raise)','Pectoral (press plano)','Dorsal (jalón al pecho)','Hombro (press militar)','Bíceps (curl)','Tríceps (extensión)','Abdominales','Lumbar (extensión)'];
 
 function cpTabFuerza(){
-  return `<div class="card">
-    <div class="card-title">💪 Test de Fuerza Muscular — 1RM (Fórmula Brzycki)</div>
-    <p style="font-size:13px;color:var(--text-soft);margin-bottom:16px">Ingresá el peso levantado y las repeticiones realizadas. El 1RM se calcula automáticamente: <strong>1RM = Peso / (1.0278 − 0.0278 × Reps)</strong></p>
-    <table style="width:100%;border-collapse:collapse;font-size:13px">
-      <thead><tr style="background:var(--sage-mist)">
-        <th style="padding:8px;text-align:left">Grupo muscular / Ejercicio</th>
-        <th style="padding:8px;text-align:center">Peso (kg)</th>
-        <th style="padding:8px;text-align:center">Reps</th>
-        <th style="padding:8px;text-align:center">1RM calculado</th>
-        <th style="padding:8px;text-align:left">Notas</th>
-      </tr></thead>
-      <tbody>
-        ${GRUPOS_MUSCULARES.map((g,i)=>`<tr style="border-bottom:1px solid var(--border)">
-          <td style="padding:8px"><strong style="font-size:12px">${g}</strong></td>
-          <td style="padding:4px 8px"><input type="number" id="fuerza-peso-${i}" placeholder="kg" oninput="calcBrzycki(${i})" style="width:70px;padding:6px;border:1.5px solid var(--border);border-radius:6px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;text-align:center"></td>
-          <td style="padding:4px 8px"><input type="number" id="fuerza-reps-${i}" placeholder="reps" oninput="calcBrzycki(${i})" style="width:60px;padding:6px;border:1.5px solid var(--border);border-radius:6px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;text-align:center"></td>
-          <td style="padding:8px;text-align:center;font-weight:700;color:var(--sage)" id="fuerza-rm-${i}">—</td>
-          <td style="padding:4px 8px"><input type="text" id="fuerza-obs-${i}" placeholder="Obs..." style="width:100%;padding:6px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;font-family:'DM Sans',sans-serif;outline:none"></td>
-        </tr>`).join('')}
-      </tbody>
-    </table>
-    ${cpSaveBtn('saveFuerza')}
-  </div>`;
+  const rows = GRUPOS_MUSCULARES.map((g,i) =>
+    '<tr style="border-bottom:1px solid var(--border)">' +
+    '<td style="padding:8px"><strong style="font-size:12px">' + g + '</strong></td>' +
+    '<td style="padding:4px 8px"><input type="number" id="fuerza-peso-' + i + '" placeholder="kg" oninput="calcBrzycki(' + i + ')" style="width:70px;padding:6px;border:1.5px solid var(--border);border-radius:6px;font-size:13px;font-family:DM Sans,sans-serif;outline:none;text-align:center"></td>' +
+    '<td style="padding:4px 8px"><input type="number" id="fuerza-reps-' + i + '" placeholder="reps" oninput="calcBrzycki(' + i + ')" style="width:60px;padding:6px;border:1.5px solid var(--border);border-radius:6px;font-size:13px;font-family:DM Sans,sans-serif;outline:none;text-align:center"></td>' +
+    '<td style="padding:8px;text-align:center;font-weight:700;color:var(--sage)" id="fuerza-rm-' + i + '">—</td>' +
+    '<td style="padding:4px 8px"><input type="text" id="fuerza-obs-' + i + '" placeholder="Obs..." style="width:100%;padding:6px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;font-family:DM Sans,sans-serif;outline:none"></td>' +
+    '</tr>'
+  ).join('');
+  return '<div class="card"><div class="card-title">💪 Test de Fuerza Muscular — 1RM (Fórmula Brzycki)</div>' +
+    '<p style="font-size:13px;color:var(--text-soft);margin-bottom:16px">Ingresá el peso levantado y las repeticiones. 1RM = Peso / (1.0278 − 0.0278 × Reps)</p>' +
+    '<table style="width:100%;border-collapse:collapse;font-size:13px">' +
+    '<thead><tr style="background:var(--sage-mist)">' +
+    '<th style="padding:8px;text-align:left">Grupo muscular</th>' +
+    '<th style="padding:8px;text-align:center">Peso (kg)</th>' +
+    '<th style="padding:8px;text-align:center">Reps</th>' +
+    '<th style="padding:8px;text-align:center">1RM calculado</th>' +
+    '<th style="padding:8px;text-align:left">Notas</th>' +
+    '</tr></thead><tbody>' + rows + '</tbody></table>' +
+    cpSaveBtn("saveFuerza") + '</div>';
 }
 
 function calcBrzycki(i){
@@ -2836,7 +2868,7 @@ function cpTabIncremental(){
     </div>
     <div class="form-row cols-3">
       ${cpField('incr-velmax','Vel. máxima alcanzada (km/h)','number','')}
-      ${cpField('incr-cargamax','Carga máxima (watts)','number','')}
+      ${cpField('incr-cargamax','Carga máxima (kgm/min)','number','')}
       ${cpField('incr-vam','VAM (km/h)','number','')}
     </div>
     <div class="form-row cols-4">
@@ -2895,7 +2927,7 @@ function cpTabCargaConstante(){
       ${cpField('cc-carga','Carga de trabajo (% del máximo)','number','')}
     </div>
     <div class="form-row cols-2">
-      ${cpField('cc-tiempo','Tiempo tolerado (seg)','number','')}
+      ${cpField('cc-tiempo','Tiempo tolerado (min)','number','')}
     </div>
     <div class="form-row cols-3">
       ${cpField('cc-fcini','FC inicio','number','')}
@@ -2921,46 +2953,64 @@ async function saveCargaConstante(){
 
 // ══ TAB: PLAN AERÓBICO ══
 function cpTabPlanAerobico(){
-  return `<div class="card">
-    <div class="card-title">🏃 Planificación de Entrenamiento Aeróbico</div>
-    <div class="form-row cols-3">
-      ${cpSel('plan-aero-modal','Modalidad',[{v:'cinta',l:'Cinta deslizable'},{v:'cicloergometro',l:'Cicloergómetro'},{v:'caminata',l:'Caminata'},{v:'mixto',l:'Mixto'}])}
-      ${cpField('plan-aero-vam','VAM base (km/h) o carga máx (W)','number','')}
-      ${cpField('plan-aero-semanas','Número de semanas','number','8')}
-    </div>
-    <div class="form-row cols-2">
-      ${cpField('plan-aero-inicio','Fecha inicio','date','')}
-      ${cpField('plan-aero-sesiones','Sesiones por semana','number','3')}
-    </div>
-    <button class="btn btn-outline btn-sm" onclick="generarPlanAerobico()" style="margin-top:8px">⚡ Generar plan</button>
-    ${cpResultBox('plan-aero')}
-    ${cpSaveBtn('savePlanAerobico')}
-  </div>`;
+  return '<div class="card">' +
+    '<div class="card-title">🏃 Planificación de Entrenamiento Aeróbico</div>' +
+    '<div class="form-row cols-3">' +
+    cpSel('plan-aero-modal','Modalidad',[{v:'cinta',l:'Cinta deslizable'},{v:'cicloergometro',l:'Cicloergómetro'},{v:'caminata',l:'Caminata'},{v:'mixto',l:'Mixto'}]) +
+    cpField('plan-aero-vam','VAM base (km/h) o Carga máx (kgm/min)','number','') +
+    cpField('plan-aero-semanas','Número de semanas','number','8') +
+    '</div><div class="form-row cols-3">' +
+    cpField('plan-aero-inicio','Fecha inicio','date','') +
+    cpField('plan-aero-sesiones','Sesiones por semana','number','3') +
+    cpField('plan-aero-duracion','Duración inicial (min)','number','20') +
+    '</div>' +
+    '<button class="btn btn-outline btn-sm" onclick="generarPlanAerobico()" style="margin-top:8px">⚡ Generar plan progresivo</button>' +
+    cpResultBox("plan-aero") +
+    cpSaveBtn("savePlanAerobico") + '</div>';
 }
 
 function generarPlanAerobico(){
-  const vam=getV('plan-aero-vam');
-  const semanas=getV('plan-aero-semanas')||8;
-  if(!vam){notify('Ingresá la VAM o carga máxima');return;}
-  
-  // Progressive plan: start at 60%, increase 5% every 2 weeks
-  const plan=[];
-  for(let s=1;s<=semanas;s++){
-    const pct=Math.min(60+Math.floor((s-1)/2)*5,90);
-    const carga=Math.round(vam*pct/100*10)/10;
-    const durMin=Math.min(20+Math.floor((s-1)/2)*5,45);
-    plan.push({semana:s,pct,carga,durMin});
+  const vam = getV('plan-aero-vam');
+  const semanas = getV('plan-aero-semanas') || 8;
+  const sesiones = getV('plan-aero-sesiones') || 3;
+  const durIni = getV('plan-aero-duracion') || 20;
+  if(!vam){ notify('Ingresá la VAM o carga máxima'); return; }
+
+  const plan = [];
+  for(let s=1; s<=semanas; s++){
+    // Progression: start 60%, increase 5% every 2 weeks, max 90%
+    const pct = Math.min(60 + Math.floor((s-1)/2)*5, 90);
+    const carga = Math.round(vam * pct / 100 * 10) / 10;
+    // Duration increases 5 min every 2 weeks, max 45 min
+    const durMin = Math.min(durIni + Math.floor((s-1)/2)*5, 45);
+    // Interval training: work/rest ratio
+    const fase = pct < 70 ? 'Adaptación' : pct < 80 ? 'Desarrollo' : 'Intenso';
+    const intervalo = pct < 70 ? 'Continuo' : pct < 85 ? 'Intervalos 3min/2min' : 'Intervalos 2min/1min';
+    plan.push({semana:s, pct, carga, durMin, sesiones, fase, intervalo});
   }
-  
-  const res=document.getElementById('cp-result-plan-aero');
-  res.style.display='block';
-  res.innerHTML=`<div style="font-weight:700;color:var(--sage);margin-bottom:10px">Plan de entrenamiento aeróbico progresivo:</div>
-  <table style="width:100%;font-size:13px;border-collapse:collapse">
-    <thead><tr style="background:var(--sage-mist)"><th style="padding:6px;text-align:left">Semana</th><th style="padding:6px;text-align:center">%</th><th style="padding:6px;text-align:center">Velocidad/Carga</th><th style="padding:6px;text-align:center">Duración</th><th style="padding:6px;text-align:left">Descripción</th></tr></thead>
-    <tbody>${plan.map(p=>`<tr style="border-bottom:1px solid var(--border)"><td style="padding:6px;font-weight:600">S${p.semana}</td><td style="padding:6px;text-align:center">${p.pct}%</td><td style="padding:6px;text-align:center;font-weight:700;color:var(--sage)">${p.carga}</td><td style="padding:6px;text-align:center">${p.durMin} min</td><td style="padding:6px;color:var(--text-soft);font-size:12px">${p.pct<70?'Fase adaptación':p.pct<80?'Fase desarrollo':'Fase mantenimiento intenso'}</td></tr>`).join('')}</tbody>
-  </table>`;
-  
-  // Store plan for saving
+
+  const rows = plan.map(p =>
+    '<tr style="border-bottom:1px solid var(--border)">' +
+    '<td style="padding:6px;font-weight:600;text-align:center">S' + p.semana + '</td>' +
+    '<td style="padding:6px;text-align:center">' + p.pct + '%</td>' +
+    '<td style="padding:6px;text-align:center;font-weight:700;color:var(--sage)">' + p.carga + '</td>' +
+    '<td style="padding:6px;text-align:center">' + p.durMin + ' min</td>' +
+    '<td style="padding:6px;text-align:center">' + p.sesiones + ' ses/sem</td>' +
+    '<td style="padding:6px;text-align:center;font-size:12px">' + p.intervalo + '</td>' +
+    '<td style="padding:6px;font-size:12px;color:var(--text-soft)">' + p.fase + '</td>' +
+    '</tr>'
+  ).join('');
+
+  const res = document.getElementById('cp-result-plan-aero');
+  res.style.display = 'block';
+  res.innerHTML = '<div style="font-weight:700;color:var(--sage);margin-bottom:10px">Plan de entrenamiento aeróbico progresivo:</div>' +
+    '<table style="width:100%;font-size:13px;border-collapse:collapse">' +
+    '<thead><tr style="background:var(--sage-mist)">' +
+    '<th style="padding:6px">Semana</th><th style="padding:6px;text-align:center">%VAM</th>' +
+    '<th style="padding:6px;text-align:center">Vel/Carga</th><th style="padding:6px;text-align:center">Duración</th>' +
+    '<th style="padding:6px;text-align:center">Sesiones</th><th style="padding:6px;text-align:center">Método</th>' +
+    '<th style="padding:6px">Fase</th></tr></thead><tbody>' + rows + '</tbody></table>';
+
   window._planAero = plan;
 }
 
@@ -2973,46 +3023,79 @@ async function savePlanAerobico(){
 
 // ══ TAB: PLAN FUERZA ══
 function cpTabPlanFuerza(){
-  return `<div class="card">
-    <div class="card-title">🏋 Planificación de Entrenamiento de Fuerza Muscular</div>
-    <div class="form-row cols-3">
-      ${cpField('plan-f-semanas','Número de semanas','number','8')}
-      ${cpField('plan-f-inicio','Fecha inicio','date','')}
-      ${cpField('plan-f-sesiones','Sesiones por semana','number','2')}
-    </div>
-    <p style="font-size:13px;color:var(--text-soft);margin-bottom:12px">Ingresá el 1RM de cada grupo muscular (calculado previamente):</p>
-    <table style="width:100%;border-collapse:collapse;font-size:13px">
-      <thead><tr style="background:var(--sage-mist)"><th style="padding:6px;text-align:left">Grupo muscular</th><th style="padding:6px;text-align:center">1RM (kg)</th></tr></thead>
-      <tbody>${GRUPOS_MUSCULARES.slice(0,8).map((g,i)=>`<tr style="border-bottom:1px solid var(--border)"><td style="padding:8px;font-weight:600">${g}</td><td style="padding:4px 8px"><input type="number" id="planf-rm-${i}" placeholder="kg" style="width:80px;padding:6px;border:1.5px solid var(--border);border-radius:6px;font-size:13px;text-align:center;font-family:'DM Sans',sans-serif;outline:none"></td></tr>`).join('')}</tbody>
-    </table>
-    <button class="btn btn-outline btn-sm" onclick="generarPlanFuerza()" style="margin-top:12px">⚡ Generar plan progresivo</button>
-    ${cpResultBox('plan-fuerza')}
-    ${cpSaveBtn('savePlanFuerza')}
-  </div>`;
+  const rmRows = GRUPOS_MUSCULARES.map((g,i) =>
+    '<tr style="border-bottom:1px solid var(--border)">' +
+    '<td style="padding:8px;font-weight:600">' + g + '</td>' +
+    '<td style="padding:4px 8px;text-align:center"><input type="number" id="planf-rm-' + i + '" placeholder="kg" style="width:80px;padding:6px;border:1.5px solid var(--border);border-radius:6px;font-size:13px;text-align:center;font-family:DM Sans,sans-serif;outline:none"></td>' +
+    '</tr>'
+  ).join('');
+  
+  return '<div class="card">' +
+    '<div class="card-title">🏋 Planificación de Entrenamiento de Fuerza Muscular</div>' +
+    '<div class="form-row cols-3">' +
+    cpField('plan-f-semanas','Número de semanas','number','8') +
+    cpField('plan-f-inicio','Fecha inicio','date','') +
+    cpField('plan-f-sesiones','Sesiones por semana','number','2') +
+    '</div>' +
+    '<p style="font-size:13px;color:var(--text-soft);margin-bottom:12px">Ingresá el 1RM de cada grupo muscular (del test previo):</p>' +
+    '<table style="width:100%;border-collapse:collapse;font-size:13px">' +
+    '<thead><tr style="background:var(--sage-mist)">' +
+    '<th style="padding:8px;text-align:left">Grupo muscular</th>' +
+    '<th style="padding:8px;text-align:center">1RM (kg)</th>' +
+    '</tr></thead><tbody>' + rmRows + '</tbody></table>' +
+    '<button class="btn btn-outline btn-sm" onclick="generarPlanFuerza()" style="margin-top:12px">⚡ Generar plan progresivo</button>' +
+    cpResultBox("plan-fuerza") +
+    cpSaveBtn("savePlanFuerza") + '</div>';
 }
 
 function generarPlanFuerza(){
-  const semanas=getV('plan-f-semanas')||8;
-  const rms=GRUPOS_MUSCULARES.slice(0,8).map((_,i)=>({g:GRUPOS_MUSCULARES[i],rm:getV('planf-rm-'+i)||0})).filter(x=>x.rm>0);
-  if(!rms.length){notify('Ingresá al menos un 1RM');return;}
-  
-  // Progressive plan: 3 phases
-  const fases=[
-    {nombre:'Adaptación neuromuscular',semanas:[1,2],series:3,reps:'15-20',pct:50},
-    {nombre:'Hipertrofia/Resistencia',semanas:[3,5],series:3,reps:'10-15',pct:60},
-    {nombre:'Fuerza moderada',semanas:[6,7],series:4,reps:'8-12',pct:70},
-    {nombre:'Fuerza máxima progresiva',semanas:[8,semanas],series:4,reps:'6-10',pct:80},
-  ].filter(f=>f.semanas[0]<=semanas);
-  
-  const res=document.getElementById('cp-result-plan-fuerza');
-  res.style.display='block';
-  res.innerHTML=`<div style="font-weight:700;color:var(--sage);margin-bottom:10px">Plan de fuerza muscular progresivo (${semanas} semanas):</div>
-  ${fases.map(f=>`<div style="margin-bottom:14px"><div style="font-weight:700;font-size:13px;color:var(--sage);padding:6px;background:var(--sage-mist);border-radius:6px;margin-bottom:6px">📅 Semanas ${f.semanas[0]}-${Math.min(f.semanas[1],semanas)} — ${f.nombre}</div>
-  <div style="font-size:12px;color:var(--text-soft);margin-bottom:6px">${f.series} series × ${f.reps} repeticiones · ${f.pct}% del 1RM</div>
-  <table style="width:100%;font-size:12px;border-collapse:collapse"><thead><tr style="background:var(--border)"><th style="padding:4px 6px;text-align:left">Ejercicio</th><th style="padding:4px 6px;text-align:center">1RM</th><th style="padding:4px 6px;text-align:center">Carga (${f.pct}%)</th><th style="padding:4px 6px;text-align:center">Series×Reps</th></tr></thead>
-  <tbody>${rms.map(r=>`<tr style="border-bottom:1px solid var(--border)"><td style="padding:4px 6px">${r.g}</td><td style="padding:4px 6px;text-align:center">${r.rm}kg</td><td style="padding:4px 6px;text-align:center;font-weight:700;color:var(--sage)">${Math.round(r.rm*f.pct/100)}kg</td><td style="padding:4px 6px;text-align:center">${f.series}×${f.reps}</td></tr>`).join('')}</tbody></table></div>`).join('')}`;
-  
-  window._planFuerza = {fases, rms};
+  const semanas = getV('plan-f-semanas') || 8;
+  const sesiones = getV('plan-f-sesiones') || 2;
+  const rms = GRUPOS_MUSCULARES.map((g,i) => ({g, rm: getV('planf-rm-'+i)||0})).filter(x => x.rm > 0);
+  if(!rms.length){ notify('Ingresá al menos un 1RM'); return; }
+
+  // Definir fases según semanas
+  const fases = [];
+  const semPorFase = Math.floor(semanas / 4);
+  fases.push({nombre:'Fase 1 — Adaptación neuromuscular', s1:1, s2:Math.max(2,semPorFase), series:3, reps:'15-20', pct:50, desc:'Bajo peso, alto volumen. Énfasis en técnica y activación muscular.'});
+  fases.push({nombre:'Fase 2 — Resistencia muscular', s1:fases[0].s2+1, s2:Math.floor(semanas/2), series:3, reps:'12-15', pct:60, desc:'Incremento progresivo de carga. Control excéntrico 3 seg.'});
+  fases.push({nombre:'Fase 3 — Hipertrofia/Fuerza moderada', s1:Math.floor(semanas/2)+1, s2:semanas-Math.max(1,semPorFase), series:4, reps:'8-12', pct:70, desc:'Mayor intensidad. Descanso 90 seg entre series.'});
+  fases.push({nombre:'Fase 4 — Fuerza progresiva', s1:semanas-Math.max(1,semPorFase)+1, s2:semanas, series:4, reps:'6-10', pct:80, desc:'Carga elevada. Descanso 2-3 min entre series.'});
+
+  let html = '<div style="font-weight:700;color:var(--sage);margin-bottom:10px">Plan de fuerza muscular progresivo (' + semanas + ' semanas · ' + sesiones + ' sesiones/sem):</div>';
+
+  fases.forEach(f => {
+    if(f.s1 > semanas) return;
+    const s2real = Math.min(f.s2, semanas);
+    const muscRows = rms.map(r => {
+      // Progressive within phase: increase 2.5% each week
+      const cargaIni = Math.round(r.rm * f.pct / 100);
+      const cargaFin = Math.round(r.rm * Math.min(f.pct + 5, 85) / 100);
+      return '<tr style="border-bottom:1px solid var(--border)">' +
+        '<td style="padding:5px 8px;font-weight:600">' + r.g + '</td>' +
+        '<td style="padding:5px 8px;text-align:center">' + r.rm + 'kg</td>' +
+        '<td style="padding:5px 8px;text-align:center;font-weight:700;color:var(--sage)">' + cargaIni + '-' + cargaFin + 'kg</td>' +
+        '<td style="padding:5px 8px;text-align:center">' + f.series + '×' + f.reps + '</td>' +
+        '</tr>';
+    }).join('');
+
+    html += '<div style="margin-bottom:16px;border:1.5px solid var(--sage-pale);border-radius:var(--radius-sm);overflow:hidden">' +
+      '<div style="background:var(--sage);color:#fff;padding:8px 12px;font-weight:700;font-size:13px">' +
+      f.nombre + ' — Semanas ' + f.s1 + ' a ' + s2real + '</div>' +
+      '<div style="padding:8px 12px;background:var(--sage-mist);font-size:12px;color:var(--text-soft)">' + f.desc + '</div>' +
+      '<table style="width:100%;font-size:13px;border-collapse:collapse">' +
+      '<thead><tr style="background:var(--border)">' +
+      '<th style="padding:5px 8px;text-align:left">Grupo muscular</th>' +
+      '<th style="padding:5px 8px;text-align:center">1RM</th>' +
+      '<th style="padding:5px 8px;text-align:center">Carga (' + f.pct + '% → ' + Math.min(f.pct+5,85) + '%)</th>' +
+      '<th style="padding:5px 8px;text-align:center">Series × Reps</th>' +
+      '</tr></thead><tbody>' + muscRows + '</tbody></table></div>';
+  });
+
+  const res = document.getElementById('cp-result-plan-fuerza');
+  res.style.display = 'block';
+  res.innerHTML = html;
+  window._planFuerza = {fases, rms, semanas, sesiones};
 }
 
 async function savePlanFuerza(){

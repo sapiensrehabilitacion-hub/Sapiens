@@ -3004,7 +3004,7 @@ function generarPlanAerobico(){
       const trabMin = pct < 85 ? 3 : pct < 95 ? 2 : 1;
       const descMin = pct < 85 ? 2 : pct < 95 ? 1 : 1;
       const series = Math.round(durMin / (trabMin + descMin));
-      metodoDesc = series + ' series · ' + trabMin + 'min trabajo / ' + descMin + 'min descanso';
+      metodoDesc = series + " series x " + trabMin + "min trabajo / " + descMin + "min descanso";
     }
     
     plan.push({semana:s, pct, carga, durMin, sesiones, fase, metodoDesc});

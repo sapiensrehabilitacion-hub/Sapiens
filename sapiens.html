@@ -3475,7 +3475,7 @@ function imprimirReceta() {
   const w = window.open('','_blank'); w.document.write(html); w.document.close(); w.print();
 }
 
-(sel){
+async function updatePagadoPor(sel){
   const id = sel.dataset.id;
   const nuevoPagador = sel.value;
   showLoading('Actualizando...');

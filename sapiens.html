@@ -3036,7 +3036,7 @@ async function enviarListadoProfesionales(){
       email: 'sapiensrehabilitacion@gmail.com'
     };
     try {
-      const res = await emailjs.send('service_qyjpqb9','template_sjuzqh6',templateParams,'1gD6CCpW12MNR3V3D');
+      const res = await emailjs.send('service_qyjpqb9','template_amjf7zk',templateParams,'1gD6CCpW12MNR3V3D');
       if(res.status===200) enviados.push(user.nombre+' ('+user.email+')');
       else errores.push(user.nombre+' — error '+res.status);
     } catch(e){ errores.push(user.nombre+' — '+e.text||'error de envío'); }
